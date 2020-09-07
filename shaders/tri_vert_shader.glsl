@@ -1,7 +1,9 @@
 #version 330
 in vec3 in_vert;
-in vec3 tangent;
-in float width;
+in vec3 tangent_translate; //for type 0 (line) its is the tangent, for type 1 (triangle) it is translate
+in vec3 normal;
+in vec3 light_direction;
+in float width_scale; //for type 0 (line) its is the width, for type 1 (triangle) it is scale
 in vec3 in_color;
 in uint type;
 
@@ -43,17 +45,41 @@ mat4 lookat() {
     );
 }
 
-void main() {
-    float num = 0.1;
-    
-    if (type == 0u){
-        num = 0.0;
+float map(float value, float min1, float max1, float min2, float max2) {
+  return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
+
+void main() { 
+    vec3 vert = vec3(0.0);
+
+    // type 0 is a line triangle
+    // type 1 is a shaded triangle
+    // type 2 is a non-shaded triangle
+    switch(type){
+        case 0u:
+            vec3 direction = normalize(cross(eye - in_vert, tangent_translate));
+            vert = in_vert + direction*width_scale;
+            color = in_color;
+            break;
+        
+        case 1u:
+            vert = in_vert*width_scale + tangent_translate;
+            // color = in_color*(dot(vert - tangent_translate, light_direction) < 0.0 ? 0.5 : 1.0);
+            color = in_color*map(dot(normalize(vert - tangent_translate), light_direction), -1.0, 1.0, 0.0, 1.0);
+            break;
+
+        case 2u:
+            vert = in_vert*width_scale + tangent_translate;
+            color = in_color;
+            break;
+
+        case 255u:
+            vert = in_vert + normal;
+            color = in_color;
+            break;
     }
 
-    vec3 direction = normalize(cross(eye - in_vert, tangent));
-    vec3 vert = in_vert + direction*width;
-
     gl_Position = perspective() * lookat() * vec4(vert, 1.0);
-    uv = vert.xy + vec2(num);
-    color = in_color;
+    uv = vert.xy;
+    
 }
