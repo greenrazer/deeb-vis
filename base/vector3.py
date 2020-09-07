@@ -1,4 +1,4 @@
-from vector import Vector
+from base.vector import Vector
 
 class Vector3(Vector):
     def __init__(self, x, y, z):

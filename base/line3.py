@@ -1,5 +1,5 @@
-from triangle3 import Triangle3
-from linetriangle3 import LineTrianglePair3
+from base.linetriangle3 import LineTrianglePair3
+from base.triangle3 import Triangle3
 
 class Line3:
     def __init__(self, line, width):

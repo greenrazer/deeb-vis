@@ -1,4 +1,4 @@
-from vector3 import Vector3
+from base.vector3 import Vector3
 
 class Triangle3:
     def __init__(self, v1, v2, v3):

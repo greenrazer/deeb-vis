@@ -1,5 +1,6 @@
 import math
 import random
+
 import moderngl
 import moderngl_window
 from moderngl_window.conf import settings

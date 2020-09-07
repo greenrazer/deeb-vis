@@ -1,5 +1,5 @@
-from renderable import Renderable
-from line3 import Line3
+from base.line3 import Line3
+from renderable.renderable import Renderable
 
 class LineR(Renderable, Line3):
     def __init__(self, verticies, width, color = None):

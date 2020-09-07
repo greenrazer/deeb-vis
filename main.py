@@ -1,13 +1,10 @@
-from renderer import Renderer
-from lineR import LineR
-from vector3 import Vector3
-from sphereR import SphereR
-from gridR import GridR
-from lineutils import circle_pts, random_pts
-
 import math
-import random
 
+from base.vector3 import Vector3
+from renderable.gridR import GridR
+from renderable.lineR import LineR
+from renderable.sphereR import SphereR
+from renderer.renderer import Renderer
 
 grid = GridR(-5, 5)
 grid_bytes = grid.to_bytes()

@@ -1,6 +1,6 @@
-from lineR import LineR
-from renderable import Renderable
-from vector3 import Vector3
+from base.vector3 import Vector3
+from renderable.lineR import LineR
+from renderable.renderable import Renderable
 
 
 class GridR(Renderable):

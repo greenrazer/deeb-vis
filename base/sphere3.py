@@ -1,8 +1,8 @@
-from vector3 import Vector3
-from triangle3 import Triangle3
-from trianglecollection import TriangleCollection
-
 import math
+
+from base.triangle3 import Triangle3
+from base.trianglecollection import TriangleCollection
+from base.vector3 import Vector3
 
 def set_arr(arr, ind, arr2):
     for i in range(len(arr2)):
