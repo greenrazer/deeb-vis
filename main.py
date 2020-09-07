@@ -1,17 +1,16 @@
 import math
 
 from base.vector3 import Vector3
-from renderable.gridR import GridR
-from renderable.lineR import LineR
-from renderable.sphereR import SphereR
+from renderable.grid import Grid
+from renderable.sphere import Sphere
 from renderer.renderer import Renderer
 
-grid = GridR(-5, 5)
+grid = Grid(-5, 5)
 grid_bytes = grid.to_bytes()
 
-point1 = SphereR(0.2, Vector3(1, 0, 0), (1.0, 1.0, 0.0))
-point2 = SphereR(0.2, Vector3(2, 0, 0), (1.0, 1.0, 0.0))
-point3 = SphereR(0.2, Vector3(3, 0, 0), (1.0, 1.0, 0.0))
+point1 = Sphere(0.2, Vector3(1, 0, 0), (1.0, 1.0, 0.0))
+point2 = Sphere(0.2, Vector3(2, 0, 0), (1.0, 1.0, 0.0))
+point3 = Sphere(0.2, Vector3(3, 0, 0), (1.0, 1.0, 0.0))
 
 def change_verex_arr(render_window, time, frame_time):
     point1.location = Vector3(1*math.cos(time*0.3), 1*math.sin(time*0.3),0)

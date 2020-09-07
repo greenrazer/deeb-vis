@@ -1,9 +1,9 @@
 from base.vector3 import Vector3
-from renderable.lineR import LineR
+from renderable.line import Line
 from renderable.renderable import Renderable
 
 
-class GridR(Renderable):
+class Grid(Renderable):
     def __init__(self, grid_from, grid_to, grid_increment=1, sections=1):
         Renderable.__init__(self)
         self.grid = self.create_grid(grid_from, grid_to, grid_increment, sections)
@@ -19,7 +19,7 @@ class GridR(Renderable):
         grid = []
 
         for i in range(grid_from, 0, grid_increment):
-            line = LineR(
+            line = Line(
                 self.straight_line_pts(sections, Vector3(i,grid_from,0), Vector3(i,grid_to,0)),
                 0.01,
                 (0.75,0.75,0.75)
@@ -27,7 +27,7 @@ class GridR(Renderable):
             grid.append(line)
 
         for i in range(1, grid_to + 1, grid_increment):
-            line = LineR(
+            line = Line(
                 self.straight_line_pts(sections, Vector3(i,grid_from,0), Vector3(i,grid_to,0)),
                 0.01,
                 (0.75,0.75,0.75)
@@ -35,7 +35,7 @@ class GridR(Renderable):
             grid.append(line)
 
         for i in range(grid_from, 0, grid_increment):
-            line = LineR(
+            line = Line(
                 self.straight_line_pts(sections, Vector3(grid_from,i,0), Vector3(grid_to,i,0)),
                 0.01,
                 (0.75,0.75,0.75)
@@ -43,28 +43,28 @@ class GridR(Renderable):
             grid.append(line)
 
         for i in range(1, grid_to + 1, grid_increment):
-            line = LineR(
+            line = Line(
                 self.straight_line_pts(sections, Vector3(grid_from,i,0), Vector3(grid_to,i,0)),
                 0.01,
                 (0.75,0.75,0.75)
             )
             grid.append(line)
 
-        line = LineR(
+        line = Line(
             self.straight_line_pts(sections, Vector3(0,0,grid_from), Vector3(0,0,grid_to)),
             0.01,
             (1.0,0.0,0.0)
         )
         grid.append(line)
 
-        line = LineR(
+        line = Line(
             self.straight_line_pts(sections, Vector3(0,grid_from,0), Vector3(0,grid_to,0)),
             0.01,
             (0.0,1.0,0.0)
         )
         grid.append(line)
 
-        line = LineR(
+        line = Line(
             self.straight_line_pts(sections, Vector3(grid_from,0,0), Vector3(grid_to,0,0)),
             0.01,
             (0.0,0.0,1.0)

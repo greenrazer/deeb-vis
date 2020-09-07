@@ -1,7 +1,7 @@
 from base.sphere3 import Sphere3
 from renderable.renderable import Renderable
 
-class SphereR(Sphere3, Renderable):
+class Sphere(Sphere3, Renderable):
     def __init__(self, radius, location, color = None, subdivisions = 2):
         Sphere3.__init__(self, radius, location, subdivisions)
         Renderable.__init__(self)

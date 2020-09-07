@@ -1,7 +1,7 @@
 from base.line3 import Line3
 from renderable.renderable import Renderable
 
-class LineR(Renderable, Line3):
+class Line(Renderable, Line3):
     def __init__(self, verticies, width, color = None):
         Line3.__init__(self, verticies, width)
         Renderable.__init__(self)
