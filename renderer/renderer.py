@@ -12,7 +12,7 @@ class Renderer:
     Custom setup using a class.
     We create the window, main loop and register events.
     """
-    def __init__(self, byte_array = None):
+    def __init__(self, byte_array):
         # Configure to use pyglet window
         settings.WINDOW['class'] = 'moderngl_window.context.pyglet.Window'
         settings.WINDOW['size'] = (720,720)
@@ -55,17 +55,19 @@ class Renderer:
         self.prog['center'].value = (0, 0, 0)
         self.prog['up'].value = (0, 0, 1)
 
+        self.prog['time'].value = 0
+
         self.shader_args = ("3f4 3f4 3f4 3f4 1f4 3f4 u1 /v", "in_vert", "tangent_translate", "normal", "light_direction", "width_scale", "in_color", "type")
 
-        if byte_array:
-            self.vbo = self.ctx.buffer(byte_array)
-            self.vao = self.ctx.vertex_array(self.prog,     [
-                (self.vbo, *self.shader_args),
-            ])
+        self.vbo = self.ctx.buffer(byte_array)
+        self.vao = self.ctx.vertex_array(self.prog,     [
+            (self.vbo, *self.shader_args),
+        ])
 
     def render(self, time, frame_time):
-        self.ctx.clear(1.0, 1.0, 1.0)
+        self.prog['time'].value = time
 
+        self.ctx.clear(1.0, 1.0, 1.0)
         self.vao.render(moderngl.TRIANGLES)
 
     def run(self, change_vertex_buffer = None, before_frame_func = None, after_frame_func = None):
@@ -78,10 +80,7 @@ class Renderer:
 
             if change_vertex_buffer:
                 buffer = change_vertex_buffer(self, time, frame_time)
-                self.vbo = self.ctx.buffer(buffer)
-                self.vao = self.ctx.vertex_array(self.prog,     [
-                    (self.vbo, *self.shader_args),
-                ])
+                self.vbo.write(buffer)
 
             if before_frame_func:
                 before_frame_func(self, time, frame_time)

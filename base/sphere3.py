@@ -1,8 +1,11 @@
 import math
+import pickle
 
+from base.shapepreloader import ShapePreloader
 from base.triangle3 import Triangle3
 from base.trianglecollection import TriangleCollection
 from base.vector3 import Vector3
+
 
 def set_arr(arr, ind, arr2):
     for i in range(len(arr2)):
@@ -33,7 +36,11 @@ class Sphere3:
     def __init__(self, radius, location, subdivisions = 3):
         self.subdivisions = subdivisions
 
-        self.triangles = self.generate_unit_icosphere(self.subdivisions)
+
+        if subdivisions < len(ShapePreloader.icosphere):
+            self.triangles = ShapePreloader.icosphere[subdivisions]
+        else:
+            self.triangles = self.generate_unit_icosphere(self.subdivisions)
 
         self.radius = radius
         self.location = location
@@ -93,9 +100,5 @@ class Sphere3:
 
     def translate(self, location):
         self.location += location
-
-
-
-    
 
 

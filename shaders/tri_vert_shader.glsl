@@ -19,6 +19,8 @@ uniform vec3 center;
 uniform vec3 eye;
 uniform vec3 up;
 
+uniform float time;
+
 mat4 perspective() {
     float zmul = (-2.0 * z_near * z_far) / (z_far - z_near);
     float ymul = 1.0 / tan(fovy * 3.14159265 / 360);
@@ -74,7 +76,7 @@ void main() {
             break;
 
         case 255u:
-            vert = in_vert + normal;
+            vert = in_vert + normal + vec3(time);
             color = in_color;
             break;
     }

@@ -4,6 +4,9 @@ class Triangle3:
     def __init__(self, v1, v2, v3):
         self._verticies = [v1, v2, v3]
 
+    def __getitem__(self, ind):
+        return self._verticies[ind]
+
     def __iter__(self):
         return iter(self._verticies)
 

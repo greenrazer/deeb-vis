@@ -21,12 +21,14 @@ class Sphere(Sphere3, Renderable):
     @property
     def shader_info(self):
         shader_data = []
+        verts = 0
         for triangle in self.triangles:
             color = self.color_array[self.c] if self.color is None else self.color
             for vert in triangle:
-                shader_data.append(
+                verts += 1
+                shader_data.extend(
                     [vert[0],vert[1],vert[2],  self.location[0],self.location[1],self.location[2],  0.0,0.0,0.0,  0.0,0.0,1.0,  self.radius, color[0],color[1],color[2],  1],
                 )
             self.c = (self.c + 1) % 6
-        return shader_data
+        return (shader_data, verts)
 
