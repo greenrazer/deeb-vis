@@ -1,9 +1,9 @@
 #version 330
 in vec3 in_vert;
-in vec3 tangent_translate; //for type 0 (line) its is the tangent, for type 1 (triangle) it is translate
+in vec3 tangent_translate; //for type 0 (line) its is the tangent, for type 1 (sphere) it is translate
 in vec3 normal;
 in vec3 light_direction;
-in float width_scale; //for type 0 (line) its is the width, for type 1 (triangle) it is scale
+in float width_scale; //for type 0 (line) its is the width, for type 1 (sphere) it is scale
 in vec3 in_color;
 in uint type;
 
@@ -53,7 +53,7 @@ void main() {
     vec3 vert = vec3(0.0);
 
     // type 0 is a line triangle
-    // type 1 is a shaded triangle
+    // type 1 is a shaded sphere triangle
     // type 2 is a non-shaded triangle
     switch(type){
         case 0u:
