@@ -7,6 +7,6 @@ class Renderable:
 
     def to_bytes(self):
         verts, num = self.shader_info
-        buf = struct.pack('<'+'16f1B' * num , *verts)
+        buf = struct.pack('<'+'24f1B' * num , *verts)
         self.cache = buf
         return buf

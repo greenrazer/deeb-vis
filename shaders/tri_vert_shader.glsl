@@ -1,6 +1,9 @@
 #version 330
-in vec3 in_vert;
-in vec3 tangent_translate; //for type 0 (line) its is the tangent, for type 1 (sphere) it is translate
+in vec3 from_vert;
+in vec3 to_vert;
+in vec3 tangent_translate_from; //for type 0 (line) its is the tangent, for type 1 (sphere) it is translate
+in vec3 tangent_translate_to;
+in vec2 hold_transform_time;
 in vec3 normal;
 in vec3 light_direction;
 in float width_scale; //for type 0 (line) its is the width, for type 1 (sphere) it is scale
@@ -59,24 +62,24 @@ void main() {
     // type 2 is a non-shaded triangle
     switch(type){
         case 0u:
-            vec3 direction = normalize(cross(eye - in_vert, tangent_translate));
-            vert = in_vert + direction*width_scale;
+            vec3 direction = normalize(cross(eye - from_vert, tangent_translate_from));
+            vert = from_vert + direction*width_scale;
             color = in_color;
             break;
         
         case 1u:
-            vert = in_vert*width_scale + tangent_translate;
-            // color = in_color*(dot(vert - tangent_translate, light_direction) < 0.0 ? 0.5 : 1.0);
-            color = in_color*map(dot(normalize(vert - tangent_translate), light_direction), -1.0, 1.0, 0.0, 1.0);
+            vert = from_vert*width_scale + tangent_translate_from;
+            // color = in_color*(dot(vert - tangent_translate_from, light_direction) < 0.0 ? 0.5 : 1.0);
+            color = in_color*map(dot(normalize(vert - tangent_translate_from), light_direction), -1.0, 1.0, 0.0, 1.0);
             break;
 
         case 2u:
-            vert = in_vert*width_scale + tangent_translate;
+            vert = from_vert*width_scale + tangent_translate_from;
             color = in_color;
             break;
 
         case 255u:
-            vert = in_vert + normal + vec3(time);
+            vert = from_vert + normal + vec3(time) + to_vert + tangent_translate_to + vec3(hold_transform_time, 0.0);
             color = in_color;
             break;
     }

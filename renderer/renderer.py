@@ -57,7 +57,7 @@ class Renderer:
 
         self.prog['time'].value = 0
 
-        self.shader_args = ("3f4 3f4 3f4 3f4 1f4 3f4 u1 /v", "in_vert", "tangent_translate", "normal", "light_direction", "width_scale", "in_color", "type")
+        self.shader_args = ("3f4 3f4 3f4 3f4 2f4 3f4 3f4 1f4 3f4 u1 /v", "from_vert", "to_vert", "tangent_translate_from", "tangent_translate_to", "hold_transform_time", "normal", "light_direction", "width_scale", "in_color", "type")
 
         self.vbo = self.ctx.buffer(byte_array)
         self.vao = self.ctx.vertex_array(self.prog,     [
