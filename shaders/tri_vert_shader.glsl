@@ -69,7 +69,6 @@ void main() {
         
         case 1u:
             vert = from_vert*width_scale + tangent_translate_from;
-            // color = in_color*(dot(vert - tangent_translate_from, light_direction) < 0.0 ? 0.5 : 1.0);
             color = in_color*map(dot(normalize(vert - tangent_translate_from), light_direction), -1.0, 1.0, 0.0, 1.0);
             break;
 
@@ -78,8 +77,25 @@ void main() {
             color = in_color;
             break;
 
+        case 3u:
+            if (time < hold_transform_time.x) {
+                vert = from_vert*width_scale + tangent_translate_from;
+                color = in_color*map(dot(normalize(vert - tangent_translate_from), light_direction), -1.0, 1.0, 0.0, 1.0);
+            }
+            else if (time < hold_transform_time.y ) {
+                float tween = (time - hold_transform_time.x)/(hold_transform_time.y - hold_transform_time.x);
+                vec3 tween_trans = (1.0-tween)*tangent_translate_from + tween*tangent_translate_to;
+                vert = from_vert*width_scale + tween_trans;
+                color = in_color*map(dot(normalize(vert - tween_trans), light_direction), -1.0, 1.0, 0.0, 1.0);
+            }
+            else {
+                vert = from_vert*width_scale + tangent_translate_to;
+                color = in_color*map(dot(normalize(vert - tangent_translate_to), light_direction), -1.0, 1.0, 0.0, 1.0);
+            }
+            break;
+
         case 255u:
-            vert = from_vert + normal + vec3(time) + to_vert + tangent_translate_to + vec3(hold_transform_time, 0.0);
+            vert =  normal + to_vert;
             color = in_color;
             break;
     }

@@ -1,6 +1,7 @@
 from base.vector import Vector
 
 class Vector3(Vector):
+
     def __init__(self, x, y, z):
         self._vec = [x,y,z]
         self._cls = Vector3 
@@ -53,6 +54,9 @@ class Vector3(Vector):
         return self._cls(self[2]*other[3] - self[3]*other[2], 
                          self[3]*other[1] - self[1]*other[3], 
                          self[1]*other[2] - self[2]*other[1])
+    @property
+    def size(self):
+        return (3,)
 
 
 def test_Vector3():

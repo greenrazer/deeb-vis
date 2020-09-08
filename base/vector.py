@@ -162,5 +162,9 @@ class Vector:
     
     def copy(self):
         return self._cls(*self._vec)
+    
+    @property
+    def size(self):
+        return (0,)
 
 

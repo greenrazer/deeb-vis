@@ -50,6 +50,11 @@ class SphereGrid(Renderable):
     def in_place_transform(self, func):
         for i in range(len(self.spheres)):
             func(self.spheres,i)
+
+    def animate_transform(self, func, time):
+        for i in range(len(self.spheres)):
+            to = func(self.spheres[i].location)
+            self.spheres[i].animate_to(to, time)
     
     def create_grid(self, grid_from, grid_to, grid_increment, radius, sections): 
         for i in frange(grid_from, grid_to+grid_increment, grid_increment):
