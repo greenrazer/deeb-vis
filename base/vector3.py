@@ -1,9 +1,11 @@
+import numpy as np
+
 from base.vector import Vector
 
 class Vector3(Vector):
 
     def __init__(self, x, y, z):
-        self._vec = [x,y,z]
+        self._vals = np.array([x,y,z])
         self._cls = Vector3 
 
     def __getattr__(self, key):
@@ -28,35 +30,32 @@ class Vector3(Vector):
         
     @property
     def x(self):
-        return self._vec[0]
+        return self._vals[0]
 
     @x.setter
     def x(self, val):
-        self._vec[0] = val
+        self._vals[0] = val
 
     @property
     def y(self):
-        return self._vec[1]
+        return self._vals[1]
 
     @y.setter
     def y(self, val):
-        self._vec[1] = val
+        self._vals[1] = val
 
     @property
     def z(self):
-        return self._vec[2]
+        return self._vals[2]
 
     @z.setter
     def z(self, val):
-        self._vec[2] = val
+        self._vals[2] = val
 
     def cross(self, other):
         return self._cls(self[2]*other[3] - self[3]*other[2], 
                          self[3]*other[1] - self[1]*other[3], 
                          self[1]*other[2] - self[2]*other[1])
-    @property
-    def size(self):
-        return (3,)
 
 
 def test_Vector3():

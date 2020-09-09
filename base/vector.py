@@ -1,154 +1,107 @@
 import math
+import numpy as np
 
 class Vector:
     def __getitem__(self, ind):
-        return self._vec[ind]
+        return self._vals[ind]
 
     def __setitem__(self, ind, val):
-        self._vec[ind] = val
+        self._vals[ind] = val
     
     def __len__(self):
-        return len(self._vec)
+        return len(self._vals)
     
-    def _assert_check_vec_size(self,other):
-        if(len(self) != len(other)):
+    def _assert_check_vals_size(self,other):
+        if self.shape != other.shape:
             raise Exception(f"{self.__class__.__name__} cannot be compared with {other.__class__.__name__}")
 
     def __iter__(self):
-        return iter(self._vec)
+        return iter(self._vals)
 
     def __lt__(self, other):
-        self._assert_check_vec_size(other)
+        self._assert_check_vals_size(other)
         return self.length() < other.length()
 
     def __le__(self, other):
-        self._assert_check_vec_size(other)
+        self._assert_check_vals_size(other)
         return self.length() <= other.length()
 
     def __gt__(self, other):
-        self._assert_check_vec_size(other)
+        self._assert_check_vals_size(other)
         return self.length() > other.length()
 
     def __ge__(self, other):
-        self._assert_check_vec_size(other)
+        self._assert_check_vals_size(other)
         return self.length() >= other.length()
 
     def __eq__(self, other):
-        self._assert_check_vec_size(other)
-        return self._vec == other._vec 
+        self._assert_check_vals_size(other)
+        return (self._vals == other._vals).all() 
     
     def __ne__(self, other):
-        self._assert_check_vec_size(other)
-        return self._vec != other._vec 
+        self._assert_check_vals_size(other)
+        return not(self._vals != other._vals).all
 
     def __add__(self, other):
         if isinstance(other, Vector):
-            self._assert_check_vec_size(other)
-            out = []
-            for i in range(len(self)):
-                out.append(self[i] + other[i])
-            return self._cls(*out)
+            return self.from_array(self._vals + other._vals)
         else:
-            out = []
-            for i in range(len(self)):
-                out.append(self[i] + other)
-            return self._cls(*out)
+            return self.from_array(self._vals + other)
 
     def __iadd__(self, other):
         if isinstance(other, Vector):
-            self._assert_check_vec_size(other)
-            for i in range(len(self)):
-                self[i] += other[i]
+            self._vals = self._vals + other._vals
         else:
-            for i in range(len(self)):
-                self[i] += other
+            self._vals = self._vals + other
         return self
 
     def __sub__(self, other):
         if isinstance(other, Vector):
-            self._assert_check_vec_size(other)
-            out = []
-            for i in range(len(self)):
-                out.append(self[i] - other[i])
-            return self._cls(*out)
+            return self.from_array(self._vals - other._vals)
         else:
-            out = []
-            for i in range(len(self)):
-                out.append(self[i] - other)
-            return self._cls(*out)
+            return self.from_array(self._vals - other)
 
     def __isub__(self, other):
         if isinstance(other, Vector):
-            self._assert_check_vec_size(other)
-            for i in range(len(self)):
-                self[i] -= other[i]
+            self._vals = self._vals - other._vals
         else:
-            for i in range(len(self)):
-                self[i] -= other
+            self._vals = self._vals - other
         return self
 
     def __mul__(self, other):
         if isinstance(other, Vector):
-            self._assert_check_vec_size(other)
-            out = []
-            for i in range(len(self)):
-                out.append(self[i] * other[i])
-            return self._cls(*out)
+            return self.from_array(self._vals * other._vals)
         else:
-            out = []
-            for i in range(len(self)):
-                out.append(self[i] * other)
-            return self._cls(*out)
+            return self.from_array(self._vals * other)
 
     def __imul__(self, other):
         if isinstance(other, Vector):
-            self._assert_check_vec_size(other)
-            for i in range(len(self)):
-                self[i] *= other[i]
+            self._vals = self._vals * other._vals
         else:
-            for i in range(len(self)):
-                self[i] *= other
+            self._vals = self._vals * other
         return self
 
     def __matmul__(self, other):
-        self._assert_check_vec_size(other)
-        out = 0
-        for i in range(len(self)):
-            out += self[i] * other[i]
-        return out
+        return self._vals @ other._vals
 
     def __truediv__(self, other):
         if isinstance(other, Vector):
-            self._assert_check_vec_size(other)
-            out = []
-            for i in range(len(self)):
-                out.append(self[i] / other[i])
-            return self._cls(*out)
+            return self.from_array(self._vals / other._vals)
         else:
-            out = []
-            for i in range(len(self)):
-                out.append(self[i] / other)
-            return self._cls(*out)
+            return self.from_array(self._vals / other)
 
     def __idiv__(self, other):
         if isinstance(other, Vector):
-            self._assert_check_vec_size(other)
-            for i in range(len(self)):
-                self[i] /= other[i]
+            self._vals = self._vals / other._vals
         else:
-            for i in range(len(self)):
-                self[i] /= other
+            self._vals = self._vals / other
         return self
 
     def __neg__(self):
-        out = []
-        for i in range(len(self)):
-            out.append(-self[i])
-        return self._cls(*out)
+        return self.from_array(-self._vals)
     
     def __str__(self):
-        out = [str(i) for i in self]
-        return "[" + ", ".join(out) + "]"
+        return str(self._vals)
 
     def normalized(self):
         return self / self.length()
@@ -161,10 +114,13 @@ class Vector:
         return math.sqrt(sum(self * self))
     
     def copy(self):
-        return self._cls(*self._vec)
+        return self._cls(*self._vals)
+    
+    def from_array(self, arr):
+        return self._cls(*list(arr))
     
     @property
-    def size(self):
-        return (0,)
+    def shape(self):
+        return self._vals.shape
 
 

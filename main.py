@@ -18,8 +18,7 @@ spheres = SphereGrid(-2, 2, 0.5, sections=1)
 rm = Matrix3.random(-1, 1)
 
 def trans(location):
-    v = location.copy()
-    return rm @ v
+    return rm @ location
 spheres.animate_transform(trans, 15.0)
 
 def b4_frame(render_window, time, frame_time):
