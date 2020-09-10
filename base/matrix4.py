@@ -45,3 +45,19 @@ class Matrix4(Matrix):
             0.0, 0.0, c, 0.0,
             d, e, f, 1.0
         )
+
+    def look_at(look_at, eye_pos, up):
+        forward = (look_at - eye_pos).normalize()
+        side = forward.cross(up).normalize()
+        upward = side.cross(forward)
+
+        a = -eye_pos @ side
+        b = -eye_pos @ upward
+        c = eye_pos @ forward
+
+        return Matrix4(
+            side.x, upward.x, -forward.x, 0,
+            side.y, upward.y, -forward.y, 0,
+            side.z, upward.z, -forward.z, 0,
+            a, b, c, 1
+        )

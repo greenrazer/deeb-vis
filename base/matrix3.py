@@ -5,7 +5,7 @@ from base.matrix import Matrix
 from base.vector3 import Vector3
 
 class Matrix3(Matrix):
-    def __init__(self,a,b,c,d,e,f,g,h,i):
+    def __init__(self,a,b,c, d,e,f, g,h,i):
         Matrix.__init__(self)
         self._vals = np.array(
             [

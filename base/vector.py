@@ -118,6 +118,9 @@ class Vector:
     
     def from_array(self, arr):
         return self._cls(*list(arr))
+
+    def to_tuple(self):
+        return tuple(self)
     
     @property
     def shape(self):

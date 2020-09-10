@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 from base.vector import Vector
 
@@ -53,9 +54,18 @@ class Vector3(Vector):
         self._vals[2] = val
 
     def cross(self, other):
-        return self._cls(self[2]*other[3] - self[3]*other[2], 
-                         self[3]*other[1] - self[1]*other[3], 
-                         self[1]*other[2] - self[2]*other[1])
+        return self._cls(self[1]*other[2] - self[2]*other[1], 
+                         self[2]*other[0] - self[0]*other[2], 
+                         self[0]*other[1] - self[1]*other[0])
+
+    @staticmethod
+    def random(from_n, to_n):
+        return Vector3(
+            random.uniform(from_n,to_n),
+            random.uniform(from_n,to_n),
+            random.uniform(from_n,to_n)
+        )
+
 
 
 def test_Vector3():

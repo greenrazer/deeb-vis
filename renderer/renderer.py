@@ -7,6 +7,8 @@ from moderngl_window.conf import settings
 from moderngl_window.timers.clock import Timer
 
 from base.matrix4 import Matrix4
+from base.matrix3 import Matrix3
+from base.vector3 import Vector3
 
 
 class Renderer:
@@ -48,17 +50,40 @@ class Renderer:
             fragment_shader=fragment_shader,
         )
 
-        self.perspective_matrix = Matrix4.perspective_projection(0.1,1000,1,math.pi/3).to_tuple()
-        self.orthoganal_matrix = Matrix4.orthographic_projection(5, 5, -5, -5, 0.1, 1000).to_tuple()
-        self.prog['projection_matrix'].value = self.perspective_matrix
+        self.clear_color = (1.0,1.0,1.0)
 
-        self.prog['eye'].value = (5.0, 0.0, 5.0)
-        self.prog['center'].value = (0.0, 0.0, 0.0)
-        self.prog['up'].value = (0.0, 0.0, 1.0)
+        eye = Vector3(5.0, 0.0, 5.0)
+        center = Vector3(0.0, 0.0, 0.0)
+        up = Vector3(0.0, 0.0, 1.0)
+
+        self.prog['camera_pos'].value = eye.to_tuple()
+
+        self.look = Matrix4.look_at(center, eye, up)
+        self.perspective_matrix = Matrix4.perspective_projection(0.1,1000,1,math.pi/3)
+        self.orthoganal_matrix = Matrix4.orthographic_projection(5, 5, -5, -5, 0.1, 1000)
+
+        self.proj_matrix = self.look @ self.perspective_matrix
+        self.prog['projection_matrix'].value = self.proj_matrix.to_tuple()
 
         self.prog['time'].value = 0
 
-        self.shader_args = ("3f4 3f4 3f4 3f4 2f4 3f4 3f4 1f4 3f4 u1 /v", "from_vert", "to_vert", "tangent_translate_from", "tangent_translate_to", "hold_transform_time", "normal", "light_direction", "width_scale", "in_color", "type")
+        self.prog['change_matrix'].value = Matrix3.random(-1,1).to_tuple()
+        self.prog['change_bias'].value = Vector3.random(-5,5).to_tuple()
+        self.prog['matrix_change_start_stop_time'].value = (0, 5)
+        self.prog['bias_change_start_stop_time'].value = (5, 10)
+        self.prog['activation_function_change_start_stop_time'].value = (10, 15)
+
+        self.shader_args = ("3f4 3f4 3f4 3f4 2f4 3f4 3f4 1f4 3f4 u1 /v", 
+            "from_vert", 
+            "to_vert", 
+            "tangent_translate_from", 
+            "tangent_translate_to", 
+            "point_transform_start_stop_time", 
+            "normal", 
+            "light_direction", 
+            "width_scale", 
+            "in_color", 
+            "type")
 
         self.vbo = self.ctx.buffer(byte_array)
         self.vao = self.ctx.vertex_array(self.prog,     [
@@ -68,7 +93,7 @@ class Renderer:
     def render(self, time, frame_time):
         self.prog['time'].value = time
 
-        self.ctx.clear(1.0, 1.0, 1.0)
+        self.ctx.clear(*self.clear_color)
         self.vao.render(moderngl.TRIANGLES)
 
     def run(self, change_vertex_buffer = None, before_frame_func = None, after_frame_func = None):
