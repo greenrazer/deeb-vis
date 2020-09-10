@@ -13,10 +13,7 @@ in uint type;
 out vec2 uv;
 out vec3 color;
 
-uniform float z_near;
-uniform float z_far;
-uniform float fovy;
-uniform float ratio;
+uniform mat4 projection_matrix;
 
 uniform vec3 center;
 uniform vec3 eye;
@@ -24,18 +21,6 @@ uniform vec3 up;
 
 uniform float time;
 
-mat4 perspective() {
-    float zmul = (-2.0 * z_near * z_far) / (z_far - z_near);
-    float ymul = 1.0 / tan(fovy * 3.14159265 / 360);
-    float xmul = ymul / ratio;
-
-    return mat4(
-        xmul, 0.0, 0.0, 0.0,
-        0.0, ymul, 0.0, 0.0,
-        0.0, 0.0, -1.0, -1.0,
-        0.0, 0.0, zmul, 0.0
-    );
-}
 
 mat4 lookat() {
     vec3 forward = normalize(center - eye);
@@ -100,7 +85,7 @@ void main() {
             break;
     }
 
-    gl_Position = perspective() * lookat() * vec4(vert, 1.0);
+    gl_Position = projection_matrix * lookat() * vec4(vert, 1.0);
     uv = vert.xy;
     
 }

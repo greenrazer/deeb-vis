@@ -6,6 +6,8 @@ import moderngl_window
 from moderngl_window.conf import settings
 from moderngl_window.timers.clock import Timer
 
+from base.matrix4 import Matrix4
+
 
 class Renderer:
     """
@@ -46,14 +48,13 @@ class Renderer:
             fragment_shader=fragment_shader,
         )
 
-        self.prog['z_near'].value = 0.1
-        self.prog['z_far'].value = 1000.0
-        self.prog['ratio'].value = 1
-        self.prog['fovy'].value = 60
+        self.perspective_matrix = Matrix4.perspective_projection(0.1,1000,1,math.pi/3).to_tuple()
+        self.orthoganal_matrix = Matrix4.orthographic_projection(5, 5, -5, -5, 0.1, 1000).to_tuple()
+        self.prog['projection_matrix'].value = self.perspective_matrix
 
-        self.prog['eye'].value = (3, 3, 3)
-        self.prog['center'].value = (0, 0, 0)
-        self.prog['up'].value = (0, 0, 1)
+        self.prog['eye'].value = (5.0, 0.0, 5.0)
+        self.prog['center'].value = (0.0, 0.0, 0.0)
+        self.prog['up'].value = (0.0, 0.0, 1.0)
 
         self.prog['time'].value = 0
 

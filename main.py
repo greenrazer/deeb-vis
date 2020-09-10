@@ -19,10 +19,16 @@ rm = Matrix3.random(-1, 1)
 
 def trans(location):
     return rm @ location
+
+# def trans2(sph,i):
+#     sph[i].location = rm @ sph[i].location
+
+# spheres.in_place_transform(trans2)
 spheres.animate_transform(trans, 15.0)
 
 def b4_frame(render_window, time, frame_time):
-    render_window.prog['eye'].value = (5*math.cos(time*0.1), 5*math.sin(time*0.1), 5)
+    # render_window.prog['eye'].value = (5*math.cos(time*0.1), 5*math.sin(time*0.1), 5)
+    pass
 
 render = Renderer(grid_bytes + spheres.to_bytes())
 # render.run( change_vertex_buffer=change_verex_arr, before_frame_func=b4_frame)

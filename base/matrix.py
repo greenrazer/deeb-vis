@@ -18,7 +18,9 @@ class Matrix:
     def from_array(self, arr):
         return self._cls(*list(arr.flatten()))
 
-        
+    def to_tuple(self):
+        return tuple(self._vals.flatten())
+
     @property
     def shape(self):
-        return (0,0)
+        return self._vals.shape
