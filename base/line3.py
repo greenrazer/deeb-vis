@@ -5,9 +5,14 @@ class Line3:
     def __init__(self, line, width):
         self._line = line
         self.width = width
+        self.triangle_pairs_cache = self.generate_triangle_pairs()
 
     def __len__(self):
         return len(self._line)
+
+    @property
+    def num_verts(self):
+        return len(self.triangle_pairs_cache) * 6
 
     def copy(self):
         out = []
@@ -48,7 +53,6 @@ class Line3:
         for i in range(len(self._line)-1):
             self.tan_queue.append(self.tangent(i+1))
             self.triangles.append(LineTrianglePair3(self._line[i], self._line[i+1], self.tan_queue[i], self.tan_queue[i+1], self.width))
-        
         return self.triangles
 
             

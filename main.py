@@ -1,35 +1,53 @@
 import math
-import time as tim
 
 from base.matrix3 import Matrix3
 from base.vector3 import Vector3
-from renderable.grid import Grid
-from renderable.sphere import Sphere
-from renderable.spheregrid import SphereGrid
-from renderer.renderer import Renderer
 
-from base.sphere3 import Sphere3
+from scene.objects.grid import Grid
+from scene.objects.spheregrid import SphereGrid
+
+from scene.cameras.perspectivecamera import PerspectiveCamera
+from scene.cameras.orthographiccamera import OrthographicCamera
+
+from scene.scenes.nnscene import NNScene
+
+from renderer.windowrenderer import WindowRenderer
+
+MINIMUM_FLOAT = 1.18e-38
+
 
 grid = Grid(-5, 5)
-grid_bytes = grid.to_bytes()
-
 spheres = SphereGrid(-2, 2, 0.5, sections=1)
 
-rm = Matrix3.random(-1, 1)
+# camera = PerspectiveCamera(Vector3(0.0, 5.0, 5.0), 0.1, 1000, 1, math.pi/3)
+camera = OrthographicCamera(Vector3(0.0, 0.0, 5.0), 5, 5, -5, -5, 0.1, 1000)
+camera.look_at(Vector3(0.0,0.0,0.0), Vector3(1.0,0.0,0.0))
 
-def trans(location):
-    return rm @ location
+# def zoom(renderer, time, frametime):
+#     if(abs(frametime) > 1500000000):
+#         return
+#     update = -1*frametime
+#     camera.position = camera.position + Vector3(0.0,0.0,update)
 
-# def trans2(sph,i):
-#     sph[i].location = rm @ sph[i].location
+amnt = 0
+def zoom(renderer, time, frametime):
+    if(abs(frametime) > 1500000000):
+        return
+    global amnt
+    update = 0.1*frametime/2
+    amnt += update
+    camera.update(5 - amnt, 5 - amnt, -5 + amnt, -5 + amnt, 0.1, 1000)
 
-# spheres.in_place_transform(trans2)
-spheres.animate_transform(trans, 15.0)
+renderer = WindowRenderer()
+renderer.add_before_render_function(zoom)
 
-def b4_frame(render_window, time, frame_time):
-    # render_window.prog['eye'].value = (5*math.cos(time*0.1), 5*math.sin(time*0.1), 5)
-    pass
+scene = NNScene(camera, renderer)
+scene.add_static_object(grid)
+scene.add_transformable_object(spheres)
 
-render = Renderer(grid_bytes + spheres.to_bytes())
-# render.run( change_vertex_buffer=change_verex_arr, before_frame_func=b4_frame)
-render.run( before_frame_func=b4_frame)
+scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), "1.0/(1.0 + exp(-a))", (0,5), (0,5), (0,5))
+scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), "1.0/(1.0 + exp(-a))", (0,5), (0,5), (0,5))
+scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), "1.0/(1.0 + exp(-a))", (0,5), (0,5), (0,5))
+
+scene.compile()
+scene.run()

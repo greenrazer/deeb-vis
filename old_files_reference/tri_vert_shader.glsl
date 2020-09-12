@@ -91,11 +91,11 @@ void main() {
                 before = after;
                 after  = after + change_bias;
                 global_tween_val = linearTweenValue(time, bias_change_start_stop_time.x, bias_change_start_stop_time.y);
-                if (global_tween_val == 1.0) {
-                    before = after;
-                    after  = activation_function(after);
-                    global_tween_val = linearTweenValue(time, activation_function_change_start_stop_time.x, activation_function_change_start_stop_time.y);
-                }
+            }
+            if (global_tween_val == 1.0) {
+                before = after;
+                after  = activation_function(after);
+                global_tween_val = linearTweenValue(time, activation_function_change_start_stop_time.x, activation_function_change_start_stop_time.y);
             }
 
             vec3 global_tween_trans = linearTween(global_tween_val, before, after);

@@ -94,6 +94,10 @@ class Sphere3:
             triangles.append(Triangle3(v1, v2, v3))
 
         return triangles
+
+    @property
+    def num_verts(self):
+        return len(self.triangles) * 3
     
     def scale(self, sf):
         self.radius *= sf

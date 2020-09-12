@@ -2,9 +2,9 @@ import math
 
 
 from base.vector3 import Vector3
-from renderable.renderable import Renderable
-from renderable.sphere import Sphere
-from util import frange
+from scene.objects.transformablesceneobject import TransformableSceneObject
+from scene.objects.sphere import Sphere
+from utils.util import frange
 
 def cart_to_polar(a, max_g):
     theta = math.atan2(a[1],a[0])
@@ -37,9 +37,9 @@ def color_wheel(radius, theta):
             (rgbprime[2] + m))
 
 
-class SphereGrid(Renderable):
+class SphereGrid(TransformableSceneObject):
     def __init__(self, grid_from, grid_to, grid_increment=1, radius = 0.1, sections=2):
-        Renderable.__init__(self)
+        TransformableSceneObject.__init__(self)
         self.spheres = []
         self.create_grid(grid_from, grid_to, grid_increment, radius, sections)
     
@@ -68,15 +68,19 @@ class SphereGrid(Renderable):
                         cw
                     )
                 )
+    
+    @property
+    def num_verts(self):
+        verts = 0
+        for s in self.spheres:
+            verts += s.num_verts
+        return verts
 
 
     @property
     def shader_info(self):
         shader_data = []
-        nums = 0
         for sphere in self.spheres:
-            vals, num = sphere.shader_info
-            nums += num
+            vals = sphere.shader_info
             shader_data.extend(vals)
-        
-        return (shader_data, nums)
+        return shader_data

@@ -1,12 +1,12 @@
 from base.vector3 import Vector3
-from renderable.line import Line
-from renderable.renderable import Renderable
-from util import frange
+from scene.objects.line import Line
+from scene.objects.sceneobject import SceneObject
+from utils.util import frange
 
 
-class Grid(Renderable):
+class Grid(SceneObject):
     def __init__(self, grid_from, grid_to, grid_increment=1, sections=1):
-        Renderable.__init__(self)
+        SceneObject.__init__(self)
         self.grid = self.create_grid(grid_from, grid_to, grid_increment, sections)
 
     def straight_line_pts(self, sections, vfrom, vto):
@@ -73,14 +73,19 @@ class Grid(Renderable):
         grid.append(line)
 
         return grid
+
+    @property
+    def num_verts(self):
+        verts = 0
+        for g in self.grid:
+            verts += g.num_verts
+        return verts
     
     @property
     def shader_info(self):
         shader_data = []
-        nums = 0
         for line in self.grid:
-            verts, num = line.shader_info
-            nums += num
+            verts = line.shader_info
             shader_data.extend(verts)
         
-        return (shader_data, nums)
+        return shader_data
