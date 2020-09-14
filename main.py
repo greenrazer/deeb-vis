@@ -48,8 +48,8 @@ renderer = WindowRenderer()
 # renderer.add_before_render_function(zoom)
 
 scene = NNScene(camera, renderer)
-# scene.add_static_object(grid)
-# scene.add_transformable_object(spheres)
+scene.add_static_object(grid)
+scene.add_transformable_object(spheres)
 scene.add_transformable_object(lines)
 
 # scene.add_mba_step_transformation(Matrix3(1,0,0,0.3,1,0,0,0,0), Vector3(0,0,0), "x", (0,5), (0,5), (0,5))

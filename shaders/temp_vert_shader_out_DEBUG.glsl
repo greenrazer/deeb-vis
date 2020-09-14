@@ -1,8 +1,8 @@
 #version 330
 in vec3 from_vert;
 in vec3 to_vert;
-in vec3 tangent_translate_from; //for type 0 (line) its is the tangent, for type 1 (sphere) it is translate
-in vec3 tangent_translate_to;
+in vec3 translate_from; //for type 0 (line) its is the tangent, for type 1 (sphere) it is translate
+in vec3 translate_to;
 in vec2 point_transform_start_stop_time;
 in vec3 normal;
 in vec3 light_direction;
@@ -62,36 +62,36 @@ void main() {
     // type 0 is a line triangle
     // type 1 is a shaded sphere triangle
     // type 2 is a non-shaded triangle
-    // type 3 is to point animated sphere triangle
+    // type 3 is to point animated shaded sphere triangle
     // type 4 is global function animated sphere triangle
     // type 5 is global function animated line triangle
     switch(type){
         case 0u:
-            direction = normalize(cross(camera_pos - from_vert, tangent_translate_from));
+            direction = normalize(cross(camera_pos - from_vert, translate_from));
             vert = from_vert + direction*width_scale;
             color = in_color;
             break;
         
         case 1u:
-            vert = from_vert*width_scale + tangent_translate_from;
-            color = in_color*map(dot(normalize(vert - tangent_translate_from), light_direction), -1.0, 1.0, 0.0, 1.0);
+            vert = from_vert*width_scale + translate_from;
+            color = in_color*map(dot(normalize(vert - translate_from), light_direction), -1.0, 1.0, 0.0, 1.0);
             break;
 
         case 2u:
-            vert = from_vert*width_scale + tangent_translate_from;
+            vert = from_vert*width_scale + translate_from;
             color = in_color;
             break;
 
         case 3u:
             float point_tween_val = linearTweenValue(time, point_transform_start_stop_time.x, point_transform_start_stop_time.y);
-            vec3 point_tween_trans = linearTween(point_tween_val, tangent_translate_from, tangent_translate_to);
+            vec3 point_tween_trans = linearTween(point_tween_val, translate_from, translate_to);
             vert = from_vert*width_scale + point_tween_trans;
             color = in_color*map(dot(normalize(vert - point_tween_trans), light_direction), -1.0, 1.0, 0.0, 1.0);
             break;
         
         case 4u:
-            before = tangent_translate_from;
-after  = change_matrix_0*tangent_translate_from;
+            before = translate_from;
+after  = change_matrix_0*translate_from;
 tween_val = linearTweenValue(time, matrix_change_start_stop_time_0.x, matrix_change_start_stop_time_0.y);
 
 if (tween_val == 1.0) {
@@ -153,8 +153,8 @@ if (tween_val == 1.0) {
     tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
 }
             vec3 position_tween_line = linearTween(tween_val, before, after);
-            before = tangent_translate_from;
-after  = change_matrix_0*tangent_translate_from;
+            before = translate_from;
+after  = change_matrix_0*translate_from;
 tween_val = linearTweenValue(time, matrix_change_start_stop_time_0.x, matrix_change_start_stop_time_0.y);
 
 if (tween_val == 1.0) {
@@ -183,7 +183,7 @@ if (tween_val == 1.0) {
 }
             vec3 position_tangent_line = linearTween(tween_val, before, after);
 
-            direction = normalize(cross(camera_pos - position_tween_line, tangent_translate_from));
+            direction = normalize(cross(camera_pos - position_tween_line, translate_from));
             vert = position_tween_line + direction*width_scale;
             color = in_color;
             break;

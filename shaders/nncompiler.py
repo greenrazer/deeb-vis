@@ -135,7 +135,7 @@ class NNCompiler(ShaderCompiler):
     def build_vertex_shader(self):
         activation_functions_string = self.generate_activations()
         steps_uniform_string = self.generate_uniforms()
-        step_sphere_fragments_string = self.generate_step_transformation_fragments('tangent_translate_from')
+        step_sphere_fragments_string = self.generate_step_transformation_fragments('translate_from')
         step_list_fragments_string = self.generate_step_transformation_fragments('from_vert')
 
         vert_main = self.vert_main_template.replace(
