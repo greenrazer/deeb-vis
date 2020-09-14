@@ -1,5 +1,9 @@
 void main() { 
     vec3 vert = vec3(0.0);
+    vec3 before = vec3(0.0);
+    vec3 after  = vec3(0.0);
+    vec3 direction  = vec3(0.0);
+    float tween_val = 0.0;
 
     // type 0 is a line triangle
     // type 1 is a shaded sphere triangle
@@ -9,7 +13,7 @@ void main() {
     // type 5 is global function animated line triangle
     switch(type){
         case 0u:
-            vec3 direction = normalize(cross(camera_pos - from_vert, tangent_translate_from));
+            direction = normalize(cross(camera_pos - from_vert, tangent_translate_from));
             vert = from_vert + direction*width_scale;
             color = in_color;
             break;
@@ -32,10 +36,21 @@ void main() {
             break;
         
         case 4u:
-            <matrix_step_transform>
+            <matrix_step_sphere_transform>
             vec3 global_tween_trans = linearTween(tween_val, before, after);
             vert = from_vert*width_scale + global_tween_trans;
             color = in_color*map(dot(normalize(vert - global_tween_trans), light_direction), -1.0, 1.0, 0.0, 1.0);
+            break;
+        
+        case 5u:
+            <matrix_step_list_transform>
+            vec3 position_tween_line = linearTween(tween_val, before, after);
+            <matrix_step_sphere_transform>
+            vec3 position_tangent_line = linearTween(tween_val, before, after);
+
+            direction = normalize(cross(camera_pos - position_tween_line, tangent_translate_from));
+            vert = position_tween_line + direction*width_scale;
+            color = in_color;
             break;
 
         case 255u:

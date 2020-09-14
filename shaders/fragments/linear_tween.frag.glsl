@@ -3,7 +3,11 @@ float linearTweenValue(float value, float start, float stop) {
         return 0.0;
     }
     else if (value < stop) {
-        return (value - start)/(stop - start);
+        float total = (stop - start);
+        if(total == 0) {
+            return 1.0;
+        }
+        return (value - start)/total;
     }
     else {
         return 1.0;

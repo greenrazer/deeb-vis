@@ -1,6 +1,6 @@
-vec3 before = <start_pt>;
-vec3 after  = <matrix>*<start_pt>;
-float tween_val = linearTweenValue(time, <matrix_time_start>, <matrix_time_end>);
+before = <start_pt>;
+after  = <matrix>*<start_pt>;
+tween_val = linearTweenValue(time, <matrix_time_start>, <matrix_time_end>);
 
 if (tween_val == 1.0) {
     before = after;

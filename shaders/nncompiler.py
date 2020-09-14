@@ -20,7 +20,8 @@ class NNCompiler(ShaderCompiler):
         self.activation_time_start_token = '<activation_time_start>'
         self.activation_time_end_token = '<activation_time_end>'
 
-        self.main_step_replace_token = '<matrix_step_transform>'
+        self.main_step_sphere_replace_token = '<matrix_step_sphere_transform>'
+        self.main_step_list_replace_token = '<matrix_step_list_transform>'
 
         self.matrix_prefix = 'change_matrix_'
         self.bias_prefix = 'change_bias_'
@@ -105,12 +106,12 @@ class NNCompiler(ShaderCompiler):
             uniforms_arr.append("".join(uniforms_arr_str))
         return "".join(uniforms_arr)
 
-    def generate_step_sphere_fragments(self):
+    def generate_step_transformation_fragments(self, init_vec):
         function_template_list = []
         for i, step in enumerate(self.steps):
             if(i == 0):
                 temp = self.begin_tween_step_template.replace(self.matrix_token, f'{self.matrix_prefix}{i}')
-                temp = temp.replace(self.start_token, "tangent_translate_from")
+                temp = temp.replace(self.start_token, init_vec)
             else:
                 temp = self.middle_tween_step_template.replace(self.matrix_token, f'{self.matrix_prefix}{i}')
             
@@ -134,11 +135,18 @@ class NNCompiler(ShaderCompiler):
     def build_vertex_shader(self):
         activation_functions_string = self.generate_activations()
         steps_uniform_string = self.generate_uniforms()
-        step_fragments_string = self.generate_step_sphere_fragments()
+        step_sphere_fragments_string = self.generate_step_transformation_fragments('tangent_translate_from')
+        step_list_fragments_string = self.generate_step_transformation_fragments('from_vert')
 
         vert_main = self.vert_main_template.replace(
-            self.main_step_replace_token, 
-            step_fragments_string)
+            self.main_step_sphere_replace_token, 
+            step_sphere_fragments_string)
+
+
+        vert_main = vert_main.replace(
+            self.main_step_list_replace_token,
+            step_list_fragments_string
+        )
 
         final_shader = [
             self.glsl_version,
@@ -154,6 +162,9 @@ class NNCompiler(ShaderCompiler):
 
         with open('shaders/temp_vert_shader_out_DEBUG.glsl', 'w') as f:
             f.write("\n".join(final_shader))
+
+        # with open('shaders/temp_vert_shader_out_DEBUG.glsl', 'r') as f:
+        #     return f.read()
 
 
         return "\n".join(final_shader)

@@ -34,7 +34,7 @@ def ast_to_glsl(node):
             args.append(ast_to_glsl(a))
         return str(node.func.id) +"(" + ", ".join(args) + ")"
     if isinstance(node, ast.Attribute):
-        return f"{node.value.id}.{node.attr}"
+        return f"{ast_to_glsl(node.value)}.{node.attr}"
     if isinstance(node, ast.Constant):
         return str(node.value)
     if isinstance(node, ast.UnaryOp):
