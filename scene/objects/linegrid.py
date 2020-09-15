@@ -5,9 +5,9 @@ from utils.util import frange
 
 
 class LineGrid(TransformableSceneObject):
-    def __init__(self, grid_from, grid_to, grid_increment=1, sections=100):
+    def __init__(self, grid_from, grid_to, grid_increment=1, sections=100, width = 0.005):
         TransformableSceneObject.__init__(self)
-        self.grid = self.create_grid(grid_from, grid_to, grid_increment, sections)
+        self.grid = self.create_grid(grid_from, grid_to, grid_increment, sections, width)
 
     def straight_line_pts(self, sections, vfrom, vto):
         out = []
@@ -16,13 +16,13 @@ class LineGrid(TransformableSceneObject):
             out.append(vfrom + to_part*num)
         return out
 
-    def create_grid(self, grid_from, grid_to, grid_increment, sections):
+    def create_grid(self, grid_from, grid_to, grid_increment, sections, width):
         grid = []
 
         for i in frange(grid_from, 0, grid_increment):
             line = Line(
                 self.straight_line_pts(sections, Vector3(i,grid_from,0), Vector3(i,grid_to,0)),
-                0.01,
+                width,
                 (0.0,0.0,0.0)
             )
             grid.append(line)
@@ -30,7 +30,7 @@ class LineGrid(TransformableSceneObject):
         for i in frange(1, grid_to + 1, grid_increment):
             line = Line(
                 self.straight_line_pts(sections, Vector3(i,grid_from,0), Vector3(i,grid_to,0)),
-                0.01,
+                width,
                 (0.0,0.0,0.0)
             )
             grid.append(line)
@@ -38,7 +38,7 @@ class LineGrid(TransformableSceneObject):
         for i in frange(grid_from, 0, grid_increment):
             line = Line(
                 self.straight_line_pts(sections, Vector3(grid_from,i,0), Vector3(grid_to,i,0)),
-                0.01,
+                width,
                 (0.0,0.0,0.0)
             )
             grid.append(line)
@@ -46,21 +46,21 @@ class LineGrid(TransformableSceneObject):
         for i in frange(1, grid_to + 1, grid_increment):
             line = Line(
                 self.straight_line_pts(sections, Vector3(grid_from,i,0), Vector3(grid_to,i,0)),
-                0.01,
+                width,
                 (0.0,0.0,0.0)
             )
             grid.append(line)
 
         line = Line(
             self.straight_line_pts(sections, Vector3(0,grid_from,0), Vector3(0,grid_to,0)),
-            0.01,
+            width,
             (0.0,0.75,0.0)
         )
         grid.append(line)
 
         line = Line(
             self.straight_line_pts(sections, Vector3(grid_from,0,0), Vector3(grid_to,0,0)),
-            0.01,
+            width,
             (0.0,0.0,0.75)
         )
         grid.append(line)

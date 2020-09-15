@@ -38,10 +38,10 @@ def color_wheel(radius, theta):
 
 
 class SphereGrid(TransformableSceneObject):
-    def __init__(self, grid_from, grid_to, grid_increment=1, radius = 0.1, sections=2):
+    def __init__(self, grid_from, grid_to, grid_increment=1, radius = 0.1):
         TransformableSceneObject.__init__(self)
         self.spheres = []
-        self.create_grid(grid_from, grid_to, grid_increment, radius, sections)
+        self.create_grid(grid_from, grid_to, grid_increment, radius)
     
     def transform(self, func):
         for i in range(len(self.spheres)):
@@ -56,7 +56,7 @@ class SphereGrid(TransformableSceneObject):
             to = func(self.spheres[i].location)
             self.spheres[i].animate_to(to, time)
     
-    def create_grid(self, grid_from, grid_to, grid_increment, radius, sections): 
+    def create_grid(self, grid_from, grid_to, grid_increment, radius): 
         for i in frange(grid_from, grid_to+grid_increment, grid_increment):
             for j in frange(grid_from, grid_to+grid_increment, grid_increment):
                 polar = cart_to_polar((i,j), grid_to)

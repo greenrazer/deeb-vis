@@ -21,8 +21,8 @@ SOFTMAX_FUNC = "exp(a)/(exp(a.x)+exp(a.y)+exp(a.z))"
 
 
 grid = Grid(-5, 5)
-spheres = SphereGrid(-2, 2, 0.5, sections=1)
-lines = LineGrid(-5,5)
+# spheres = SphereGrid(-2, 2, 0.5, radius = 0.05)
+lines = LineGrid(-20,20)
 
 z = 2
 camera = PerspectiveCamera(Vector3(0.0, 5.0, 5.0), 0.1, 1000, 1, math.pi/3)
@@ -54,16 +54,16 @@ def rotate(renderer, time, frametime):
     camera.position = Vector3(10*math.sin(angle),10*math.cos(angle),5.0)
 
 renderer = WindowRenderer()
-# renderer.add_before_render_function(rotate)
+renderer.add_before_render_function(rotate)
 
 scene = NNScene(camera, renderer)
-# scene.add_static_object(grid)
+scene.add_static_object(grid)
 # scene.add_transformable_object(spheres)
 scene.add_transformable_object(lines)
 
 # scene.add_mba_step_transformation(Matrix3(1,0,0,0.3,1,0,0,0,0), Vector3(0,0,0), "x", (0,5), (0,5), (0,5))
-scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
 # scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
+scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
 # scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
 # scene.add_mba_step_transformation(Matrix3.identity(), Vector3.random(0,0), SOFTMAX_FUNC, (0,0), (0,0), (0,5))
 
