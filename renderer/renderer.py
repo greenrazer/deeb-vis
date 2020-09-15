@@ -16,9 +16,11 @@ class Renderer:
         self.vbo.write(buffer)
 
     def set_vertex_buffer(self, byte_array):
-        self.shader_args = ("3f4 3f4 3f4 3f4 2f4 3f4 3f4 1f4 3f4 u1 /v", 
+        self.shader_args = ("3f4 3f4 3f4 3f4 3f4 3f4 2f4 3f4 3f4 1f4 3f4 u1 /v", 
             "from_vert", 
-            "to_vert", 
+            "to_vert",
+            "before_vert",
+            "after_vert",
             "translate_from", 
             "translate_to", 
             "point_transform_start_stop_time", 

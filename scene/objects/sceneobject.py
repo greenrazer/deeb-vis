@@ -1,7 +1,7 @@
 import struct
 
 class SceneObject:
-    floats_per_vertex = 24
+    floats_per_vertex = 30
     chars_per_vertex = 1
 
     bytes_per_vertex = floats_per_vertex*4 + chars_per_vertex*1

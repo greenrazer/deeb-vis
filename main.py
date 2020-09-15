@@ -25,9 +25,10 @@ spheres = SphereGrid(-2, 2, 0.5, sections=1)
 lines = LineGrid(-5,5)
 
 z = 2
-# camera = PerspectiveCamera(Vector3(0.0, 5.0, 5.0), 0.1, 1000, 1, math.pi/3)
-camera = OrthographicCamera(Vector3(0.0, 0.0, 5.0), z, z, -z, -z, 0.1, 1000)
-camera.look_at(Vector3(0.0,0.0,0.0), Vector3(1.0,0.0,0.0))
+camera = PerspectiveCamera(Vector3(0.0, 5.0, 5.0), 0.1, 1000, 1, math.pi/3)
+camera.look_at(Vector3(0.0,0.0,0.0), Vector3(0.0,0.0,1.0))
+# camera = OrthographicCamera(Vector3(0.0, 0.0, 5.0), z, z, -z, -z, 0.1, 1000)
+# camera.look_at(Vector3(0.0,0.0,0.0), Vector3(1.0,0.0,0.0))
 
 # def zoom(renderer, time, frametime):
 #     if(abs(frametime) > 1500000000):
@@ -44,17 +45,25 @@ camera.look_at(Vector3(0.0,0.0,0.0), Vector3(1.0,0.0,0.0))
 #     amnt += update
 #     camera.update(5 - amnt, 5 - amnt, -5 + amnt, -5 + amnt, 0.1, 1000)
 
+angle = 0
+def rotate(renderer, time, frametime):
+    if(abs(frametime) > 1500000000):
+        return
+    global angle
+    angle += 0.1*frametime
+    camera.position = Vector3(10*math.sin(angle),10*math.cos(angle),5.0)
+
 renderer = WindowRenderer()
-# renderer.add_before_render_function(zoom)
+# renderer.add_before_render_function(rotate)
 
 scene = NNScene(camera, renderer)
-scene.add_static_object(grid)
-scene.add_transformable_object(spheres)
+# scene.add_static_object(grid)
+# scene.add_transformable_object(spheres)
 scene.add_transformable_object(lines)
 
 # scene.add_mba_step_transformation(Matrix3(1,0,0,0.3,1,0,0,0,0), Vector3(0,0,0), "x", (0,5), (0,5), (0,5))
 scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
-scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
+# scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
 # scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
 # scene.add_mba_step_transformation(Matrix3.identity(), Vector3.random(0,0), SOFTMAX_FUNC, (0,0), (0,0), (0,5))
 

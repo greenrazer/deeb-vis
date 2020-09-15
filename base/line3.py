@@ -1,5 +1,5 @@
-from base.linetriangle3 import LineTrianglePair3
-from base.triangle3 import Triangle3
+from base.linetriangle3 import LineTriangle3, VertexPosition
+from base.vector3 import Vector3
 
 class Line3:
     def __init__(self, line, width):
@@ -46,13 +46,25 @@ class Line3:
                 return v2
             
             return (v2 - v1).normalize()
-    
+
+    def ind_to_pos(self, at):
+        if at == 0:
+            return VertexPosition.START
+        elif at < len(self._line)-1:
+            return VertexPosition.MIDDLE
+        else:
+            return VertexPosition.END
+
     def generate_triangle_pairs(self):
         self.triangles = []
-        self.tan_queue = [self.tangent(0)]
         for i in range(len(self._line)-1):
-            self.tan_queue.append(self.tangent(i+1))
-            self.triangles.append(LineTrianglePair3(self._line[i], self._line[i+1], self.tan_queue[i], self.tan_queue[i+1], self.width))
+
+            prev = Vector3(0.0,0.0,0.0) if i == 0 else self._line[i-1]
+            nxt = Vector3(0.0,0.0,0.0) if i == len(self._line)-2 else self._line[i+2]
+            self.triangles.append(LineTriangle3(
+                prev, self._line[i], self._line[i+1], nxt,
+                self.ind_to_pos(i), self.ind_to_pos(i+1),
+                self.width))
         return self.triangles
 
             

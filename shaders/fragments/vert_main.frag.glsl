@@ -3,6 +3,12 @@ void main() {
     vec3 before = vec3(0.0);
     vec3 after  = vec3(0.0);
     vec3 direction  = vec3(0.0);
+    vec3 tween_trans = vec3(0.0);
+    vec3 tangent_v = vec3(0.0);
+
+    vec3 b4_vert = vec3(0.0);
+    vec3 curr_vert = vec3(0.0);
+    vec3 aft_vert = vec3(0.0);
     float tween_val = 0.0;
 
     // type 0 is a line triangle
@@ -37,24 +43,77 @@ void main() {
         
         case 4u:
             <matrix_step_sphere_transform>
-            vec3 global_tween_trans = linearTween(tween_val, before, after);
-            vert = from_vert*width_scale + global_tween_trans;
-            color = in_color*map(dot(normalize(vert - global_tween_trans), light_direction), -1.0, 1.0, 0.0, 1.0);
+            tween_trans = linearTween(tween_val, before, after);
+            vert = from_vert*width_scale + tween_trans;
+            color = in_color*map(dot(normalize(vert - tween_trans), light_direction), -1.0, 1.0, 0.0, 1.0);
             break;
         
         case 5u:
-            <matrix_step_list_transform>
-            vec3 position_tween_line = linearTween(tween_val, before, after);
-            <matrix_step_sphere_transform>
-            vec3 position_tangent_line = linearTween(tween_val, before, after);
+            tangent_v = tangent(before_vert, from_vert, after_vert, 0u);
+            direction = normalize(cross(camera_pos - from_vert, tangent_v));
+            vert = from_vert + direction*width_scale;
+            color = in_color;
+            break;
 
-            direction = normalize(cross(camera_pos - position_tween_line, translate_from));
-            vert = position_tween_line + direction*width_scale;
+        case 6u:
+            tangent_v = tangent(before_vert, from_vert, after_vert, 1u);
+            direction = normalize(cross(camera_pos - from_vert, tangent_v));
+            vert = from_vert + direction*width_scale;
+            color = in_color;
+            break;
+
+        case 7u:
+            tangent_v = tangent(before_vert, from_vert, after_vert, 2u);
+            direction = normalize(cross(camera_pos - from_vert, tangent_v));
+            vert = from_vert + direction*width_scale;
+            color = in_color;
+            break;
+
+        case 8u:
+            <curr_vert_matrix_transform>
+            curr_vert = linearTween(tween_val, before, after);
+
+            <after_vert_matrix_transform>
+            aft_vert = linearTween(tween_val, before, after);
+
+            tangent_v = tangent(b4_vert, curr_vert, aft_vert, 0u);
+            direction = normalize(cross(camera_pos - curr_vert, tangent_v));
+            vert = curr_vert + direction*width_scale;
+            color = in_color;
+            break;
+
+        case 9u:
+            <b4_vert_matrix_transform>
+            b4_vert = linearTween(tween_val, before, after);
+
+            <curr_vert_matrix_transform>
+            curr_vert = linearTween(tween_val, before, after);
+
+            <after_vert_matrix_transform>
+            aft_vert = linearTween(tween_val, before, after);
+
+            tangent_v = tangent(b4_vert, curr_vert, aft_vert, 1u);
+
+            direction = normalize(cross(camera_pos - curr_vert, tangent_v));
+            vert = curr_vert + direction*width_scale;
+            color = in_color;
+            break;
+
+        case 10u:
+            <b4_vert_matrix_transform>
+            b4_vert = linearTween(tween_val, before, after);
+
+            <curr_vert_matrix_transform>
+            curr_vert = linearTween(tween_val, before, after);
+
+            tangent_v = tangent(b4_vert, curr_vert, aft_vert, 2u);
+            direction = normalize(cross(camera_pos - curr_vert, tangent_v));
+            vert = curr_vert + direction*width_scale;
             color = in_color;
             break;
 
         case 255u:
-            vert =  normal + to_vert;
+            vert =  normal + to_vert + before_vert + after_vert;
             color = in_color;
             break;
     }

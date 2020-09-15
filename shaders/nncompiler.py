@@ -22,6 +22,9 @@ class NNCompiler(ShaderCompiler):
 
         self.main_step_sphere_replace_token = '<matrix_step_sphere_transform>'
         self.main_step_list_replace_token = '<matrix_step_list_transform>'
+        self.main_step_line_before_vertex_replace_token = '<b4_vert_matrix_transform>'
+        self.main_step_line_curr_vertex_replace_token = '<curr_vert_matrix_transform>'
+        self.main_step_line_after_vertex_replace_token = '<after_vert_matrix_transform>'
 
         self.matrix_prefix = 'change_matrix_'
         self.bias_prefix = 'change_bias_'
@@ -42,7 +45,10 @@ class NNCompiler(ShaderCompiler):
             self.map_template = f.read()
 
         with open("shaders/fragments/linear_tween.frag.glsl") as f:
-            self.linear_tween_template = f.read()        
+            self.linear_tween_template = f.read()
+
+        with open("shaders/fragments/compule_tangent.frag.glsl") as f:
+            self.compule_tangent_template = f.read()
 
         with open("shaders/fragments/vert_main.frag.glsl") as f:
             self.vert_main_template = f.read()        
@@ -128,15 +134,21 @@ class NNCompiler(ShaderCompiler):
             function_template_list.append(temp)
         
         if(len(self.steps) == 0):
-            function_template_list.append("float tween_val = 0.0; vec3 before = vec3(0.0,0.0,0.0);vec3 after = vec3(0.0,0.0,0.0);\n")
+            function_template_list.append(f"tween_val = 0.0; before = {init_vec};after = vec3(0.0,0.0,0.0);\n")
 
         return "".join(function_template_list)
 
     def build_vertex_shader(self):
         activation_functions_string = self.generate_activations()
         steps_uniform_string = self.generate_uniforms()
-        step_sphere_fragments_string = self.generate_step_transformation_fragments('translate_from')
-        step_list_fragments_string = self.generate_step_transformation_fragments('from_vert')
+        step_fragments_string = self.generate_step_transformation_fragments('<start_pt>')
+
+        step_sphere_fragments_string = step_fragments_string.replace('<start_pt>', 'translate_from')
+        step_list_fragments_string = step_fragments_string.replace('<start_pt>', 'from_vert')
+
+        step_line_before_fragments_string = step_fragments_string.replace('<start_pt>', 'before_vert')
+        step_line_curr_fragments_string = step_fragments_string.replace('<start_pt>', 'from_vert')
+        step_line_after_fragments_string = step_fragments_string.replace('<start_pt>', 'after_vert')
 
         vert_main = self.vert_main_template.replace(
             self.main_step_sphere_replace_token, 
@@ -148,6 +160,21 @@ class NNCompiler(ShaderCompiler):
             step_list_fragments_string
         )
 
+        vert_main = vert_main.replace(
+            self.main_step_line_before_vertex_replace_token,
+            step_line_before_fragments_string
+        )
+
+        vert_main = vert_main.replace(
+            self.main_step_line_curr_vertex_replace_token,
+            step_line_curr_fragments_string
+        )
+
+        vert_main = vert_main.replace(
+            self.main_step_line_after_vertex_replace_token,
+            step_line_after_fragments_string
+        )
+
         final_shader = [
             self.glsl_version,
             self.vert_ins,
@@ -156,6 +183,7 @@ class NNCompiler(ShaderCompiler):
             steps_uniform_string,
             self.map_template,
             self.linear_tween_template,
+            self.compule_tangent_template,
             activation_functions_string,
             vert_main
         ]
