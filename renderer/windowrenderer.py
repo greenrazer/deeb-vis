@@ -4,7 +4,7 @@ import random
 import moderngl
 import moderngl_window
 from moderngl_window.conf import settings
-from moderngl_window.timers.clock import Timer
+from moderngl_window.utils.module_loading import import_string
 
 from base.matrix4 import Matrix4
 from base.matrix3 import Matrix3
@@ -15,7 +15,8 @@ from renderer.renderer import Renderer
 DEFAULT_WINDOW_SETTINGS = {
     'class': 'moderngl_window.context.pyglet.Window',
     'size': (720, 720),
-    'aspect_ratio': 1
+    'aspect_ratio': 1,
+    "gl_version": (4, 3)
 }
 
 DEFAULT_CONTEXT_ENABLES = moderngl.DEPTH_TEST
@@ -26,22 +27,21 @@ DEFAULT_RENDERER_SETTINGS = {
 
 class WindowRenderer(Renderer):
     def __init__(self, 
+                context = None,
                 window_settings = DEFAULT_WINDOW_SETTINGS, 
                 context_enables = DEFAULT_CONTEXT_ENABLES,
                 renderer_settings = DEFAULT_RENDERER_SETTINGS):
 
         Renderer.__init__(self)
 
-        for key, value in window_settings.items():
-            settings.WINDOW[key] = value
-
         for key, value in renderer_settings.items():
             setattr(self, key, value)
 
-        self.wnd = moderngl_window.create_window_from_settings()
-
-        self.context = self.wnd.ctx
+        self.context = context if context else moderngl.create_standalone_context(require=430)
+        window_cls = import_string(window_settings["class"])
+        self.wnd = window_cls(**window_settings)
         self.context.enable(context_enables)
+        moderngl_window.activate_context(self.wnd, self.context)
 
         # register event methods
         self.wnd.resize_func = self.resize
@@ -55,39 +55,27 @@ class WindowRenderer(Renderer):
         self.wnd.unicode_char_entered_func = self.unicode_char_entered
         self.wnd.close_func = self.close
 
+        self.set_advance_time_function(self.advance_time)
+
     def set_clear_color(self, color):
         self.clear_color = color
 
-    def render(self, time, frame_time):
+    def render(self):
+        self.wnd.clear(*self.clear_color)
         self.context.clear(*self.clear_color)
         self.vao.render(moderngl.TRIANGLES)
+        self.wnd.swap_buffers()
 
-    def run(self):
-        timer = Timer()
-        timer.start()
+    def advance_time(self, renderer, time, frame_time):
+        self.program['time'].value = time
 
-        while not self.wnd.is_closing:
-            self.wnd.clear()
-            time, frame_time = timer.next_frame()
+    @property
+    def stopping_condition(self):
+        return not self.wnd.is_closing
 
-            if self.before_render_funcs:
-                for func in self.before_render_funcs:
-                    func(self, time, frame_time)
-
-            if self.advance_time_func:
-                self.advance_time_func(self, time, frame_time)
-            else:
-                self.program['time'].value = time
-
-            self.render(time, frame_time)
-
-            if self.after_render_funcs:
-                for func in self.after_render_funcs:
-                    func(self, time, frame_time)
-
-            self.wnd.swap_buffers()
-
+    def on_destroy(self,current_time, total_time, frames):
         self.wnd.destroy()
+        print(f"Run took :{total_time}s at {frames/total_time}avg fps.")
 
     def resize(self, width: int, height: int):
         pass

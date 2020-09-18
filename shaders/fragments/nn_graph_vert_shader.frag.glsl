@@ -1,4 +1,4 @@
-#version 330
+#version 430
 in vec3 from_vert;
 in vec3 to_vert;
 
