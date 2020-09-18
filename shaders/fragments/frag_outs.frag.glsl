@@ -1,1 +1,0 @@
-out vec4 f_color;

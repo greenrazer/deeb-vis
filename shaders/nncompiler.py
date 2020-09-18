@@ -8,6 +8,8 @@ class NNCompiler(ShaderCompiler):
         self.steps = steps
         self.activation_function_name_stub = lambda x : f'activation_function_{x}'
 
+        self.uniforms_token = '<uniforms>'
+        self.activation_functions_token = '<activations>'
         self.start_token = '<start_pt>'
         self.matrix_token = '<matrix>'
         self.bias_token = '<bias>'
@@ -32,26 +34,8 @@ class NNCompiler(ShaderCompiler):
         self.bias_time_prefix = 'bias_change_start_stop_time_'
         self.activation_time_prefix = 'activation_change_start_stop_time_'
 
-        with open("shaders/fragments/vert_ins.frag.glsl") as f:
-            self.vert_ins = f.read()
-
-        with open("shaders/fragments/vert_outs.frag.glsl") as f:
-            self.vert_outs = f.read()
-        
-        with open("shaders/fragments/vert_uniforms.frag.glsl") as f:
-            self.vert_uniforms = f.read()
-
-        with open("shaders/fragments/map.frag.glsl") as f:
-            self.map_template = f.read()
-
-        with open("shaders/fragments/linear_tween.frag.glsl") as f:
-            self.linear_tween_template = f.read()
-
-        with open("shaders/fragments/compule_tangent.frag.glsl") as f:
-            self.compule_tangent_template = f.read()
-
-        with open("shaders/fragments/vert_main.frag.glsl") as f:
-            self.vert_main_template = f.read()        
+        with open("shaders/fragments/nn_graph_vert_shader.frag.glsl") as f:
+            self.vertex_shader_template = f.read()        
 
         with open("shaders/fragments/vert_successive_tween_begin.frag.glsl") as f:
             self.begin_tween_step_template = f.read()
@@ -60,14 +44,8 @@ class NNCompiler(ShaderCompiler):
             self.middle_tween_step_template = f.read()
 
 
-        with open("shaders/fragments/frag_ins.frag.glsl") as f:
-            self.frag_ins = f.read()
-
-        with open("shaders/fragments/frag_outs.frag.glsl") as f:
-            self.frag_outs = f.read()
-
-        with open("shaders/fragments/frag_main.frag.glsl") as f:
-            self.frag_main = f.read()
+        with open("shaders/fragments/nn_graph_frag_shader.frag.glsl") as f:
+            self.fragment_shader_template = f.read()
 
     def generate_activations(self):
         self.step_to_function_name = []
@@ -138,6 +116,12 @@ class NNCompiler(ShaderCompiler):
 
         return "".join(function_template_list)
 
+    def replace_with_all(self, string, in_out_tuples):
+        temp = string
+        for in_s, out_s in in_out_tuples:
+            temp = temp.replace(in_s, out_s)
+        return temp
+
     def build_vertex_shader(self):
         activation_functions_string = self.generate_activations()
         steps_uniform_string = self.generate_uniforms()
@@ -150,59 +134,20 @@ class NNCompiler(ShaderCompiler):
         step_line_curr_fragments_string = step_fragments_string.replace('<start_pt>', 'from_vert')
         step_line_after_fragments_string = step_fragments_string.replace('<start_pt>', 'after_vert')
 
-        vert_main = self.vert_main_template.replace(
-            self.main_step_sphere_replace_token, 
-            step_sphere_fragments_string)
-
-
-        vert_main = vert_main.replace(
-            self.main_step_list_replace_token,
-            step_list_fragments_string
-        )
-
-        vert_main = vert_main.replace(
-            self.main_step_line_before_vertex_replace_token,
-            step_line_before_fragments_string
-        )
-
-        vert_main = vert_main.replace(
-            self.main_step_line_curr_vertex_replace_token,
-            step_line_curr_fragments_string
-        )
-
-        vert_main = vert_main.replace(
-            self.main_step_line_after_vertex_replace_token,
-            step_line_after_fragments_string
-        )
-
-        final_shader = [
-            self.glsl_version,
-            self.vert_ins,
-            self.vert_outs,
-            self.vert_uniforms,
-            steps_uniform_string,
-            self.map_template,
-            self.linear_tween_template,
-            self.compule_tangent_template,
-            activation_functions_string,
-            vert_main
-        ]
+        final_shader = self.replace_with_all(self.vertex_shader_template, [
+            (self.main_step_sphere_replace_token, step_sphere_fragments_string),
+            (self.uniforms_token, steps_uniform_string),
+            (self.main_step_list_replace_token, step_list_fragments_string),
+            (self.main_step_line_before_vertex_replace_token, step_line_before_fragments_string),
+            (self.main_step_line_curr_vertex_replace_token, step_line_curr_fragments_string),
+            (self.main_step_line_after_vertex_replace_token, step_line_after_fragments_string),
+            (self.activation_functions_token, activation_functions_string)
+        ])
 
         with open('shaders/temp_vert_shader_out_DEBUG.glsl', 'w') as f:
-            f.write("\n".join(final_shader))
+            f.write(final_shader)
 
-        # with open('shaders/temp_vert_shader_out_DEBUG.glsl', 'r') as f:
-        #     return f.read()
-
-
-        return "\n".join(final_shader)
+        return final_shader
 
     def build_fragment_shader(self):
-        final_shader = [
-            self.glsl_version,
-            self.frag_ins,
-            self.frag_outs,
-            self.frag_main
-        ]
-
-        return "\n".join(final_shader)
+        return self.fragment_shader_template
