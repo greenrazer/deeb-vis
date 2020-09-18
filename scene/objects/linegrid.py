@@ -5,7 +5,7 @@ from utils.util import frange
 
 
 class LineGrid(TransformableSceneObject):
-    def __init__(self, grid_from, grid_to, grid_increment=1, sections=100, width = 0.005):
+    def __init__(self, grid_from, grid_to, grid_increment=1, sections=100, width = 0.0005):
         TransformableSceneObject.__init__(self)
         self.grid = self.create_grid(grid_from, grid_to, grid_increment, sections, width)
 

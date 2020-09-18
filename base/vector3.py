@@ -66,6 +66,10 @@ class Vector3(Vector):
             random.uniform(from_n,to_n)
         )
 
+    @staticmethod
+    def zeros():
+        return Vector3(0.0,0.0,0.0)
+
 
 
 def test_Vector3():

@@ -1,71 +1,79 @@
-import math
+from scenemanagers.nnscenemanager import NNSceneManager
 
-from base.matrix3 import Matrix3
-from base.vector3 import Vector3
+inputs = [
+    [21, 13],
+    [14, 12],
+    [18.5, 16],
+    [14, 14],
+    [17.5, 15.5],
+    [13, 11.5],
+    [17.5, 12.5],
+    [17.5, 11],
+    [12, 9],
+    [16, 13],
+    [12, 10],
+    [16, 12],
+    [12, 10],
+    [12.5, 16],
+    [12, 14.5],
+    [12.5, 13],
+    [9.5, 11],
+    [12.5,10],
+    [9.5, 8.5],
 
-from scene.objects.grid import Grid
-from scene.objects.spheregrid import SphereGrid
-from scene.objects.linegrid import LineGrid
+    [5, 8.5],
+    [6, 8],
+    [10, 9],
+    [4, 7.5],
+    [16, 10.5],
+    [70, 24],
+    [54, 14],
+    [20,14],
+    [35,19],
+    [21,12],
+    [17,14.75],
+    [27,11],
+    [60,20],
+    [25, 15],
+]
 
-from scene.cameras.perspectivecamera import PerspectiveCamera
-from scene.cameras.orthographiccamera import OrthographicCamera
+labels = [
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
+    [1, 0],
 
-from scene.scenes.nnscene import NNScene
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+    [0, 1],
+]
 
-from renderer.windowrenderer import WindowRenderer
+scene = NNSceneManager(inputs, [3,3], labels)
 
-MINIMUM_FLOAT = 1.18e-38
-
-SIGMOID_FUNC = "1.0/(1.0 + exp(-a))"
-SOFTMAX_FUNC = "exp(a)/(exp(a.x)+exp(a.y)+exp(a.z))"
-
-
-grid = Grid(-5, 5)
-# spheres = SphereGrid(-2, 2, 0.5, radius = 0.05)
-lines = LineGrid(-20,20)
-
-z = 2
-camera = PerspectiveCamera(Vector3(0.0, 5.0, 5.0), 0.1, 1000, 1, math.pi/3)
-camera.look_at(Vector3(0.0,0.0,0.0), Vector3(0.0,0.0,1.0))
-# camera = OrthographicCamera(Vector3(0.0, 0.0, 5.0), z, z, -z, -z, 0.1, 1000)
-# camera.look_at(Vector3(0.0,0.0,0.0), Vector3(1.0,0.0,0.0))
-
-# def zoom(renderer, time, frametime):
-#     if(abs(frametime) > 1500000000):
-#         return
-#     update = -1*frametime
-#     camera.position = camera.position + Vector3(0.0,0.0,update)
-
-# amnt = 0
-# def zoom(renderer, time, frametime):
-#     if(abs(frametime) > 1500000000):
-#         return
-#     global amnt
-#     update = 0.1*frametime/2
-#     amnt += update
-#     camera.update(5 - amnt, 5 - amnt, -5 + amnt, -5 + amnt, 0.1, 1000)
-
-angle = 0
-def rotate(renderer, time, frametime):
-    if(abs(frametime) > 1500000000):
-        return
-    global angle
-    angle += 0.1*frametime
-    camera.position = Vector3(10*math.sin(angle),10*math.cos(angle),5.0)
-
-renderer = WindowRenderer()
-renderer.add_before_render_function(rotate)
-
-scene = NNScene(camera, renderer)
-scene.add_static_object(grid)
-# scene.add_transformable_object(spheres)
-scene.add_transformable_object(lines)
-
-# scene.add_mba_step_transformation(Matrix3(1,0,0,0.3,1,0,0,0,0), Vector3(0,0,0), "x", (0,5), (0,5), (0,5))
-# scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
-scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
-# scene.add_mba_step_transformation(Matrix3.random(-1,1), Vector3.random(-1,1), SIGMOID_FUNC, (0,5), (0,5), (0,5))
-# scene.add_mba_step_transformation(Matrix3.identity(), Vector3.random(0,0), SOFTMAX_FUNC, (0,0), (0,0), (0,5))
-
-scene.compile()
-scene.run()
+scene.play()

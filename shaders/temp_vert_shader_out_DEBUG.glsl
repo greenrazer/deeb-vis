@@ -26,6 +26,16 @@ uniform vec3 change_bias_0;
 uniform vec2 matrix_change_start_stop_time_0;
 uniform vec2 bias_change_start_stop_time_0;
 uniform vec2 activation_change_start_stop_time_0;
+uniform mat3 change_matrix_1;
+uniform vec3 change_bias_1;
+uniform vec2 matrix_change_start_stop_time_1;
+uniform vec2 bias_change_start_stop_time_1;
+uniform vec2 activation_change_start_stop_time_1;
+uniform mat3 change_matrix_2;
+uniform vec3 change_bias_2;
+uniform vec2 matrix_change_start_stop_time_2;
+uniform vec2 bias_change_start_stop_time_2;
+uniform vec2 activation_change_start_stop_time_2;
 
 float map(float value, float min1, float max1, float min2, float max2) {
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
@@ -52,7 +62,7 @@ vec3 linearTween(float value, vec3 a, vec3 b){
 vec3 tangent(vec3 prev, vec3 at, vec3 next, uint type) {
     switch(type) {
         case 0u:
-            return normalize(at - next);
+            return normalize(next - at);
         case 1u:
             vec3 v1 = normalize(prev - at);
             vec3 v2 = normalize(next - at);
@@ -64,7 +74,7 @@ vec3 tangent(vec3 prev, vec3 at, vec3 next, uint type) {
             
             return normalize(v2 - v1);
         case 2u:
-            return normalize(prev - at);
+            return normalize(at - prev);
 
     }   
 }
@@ -84,12 +94,15 @@ void main() {
     vec3 aft_vert = vec3(0.0);
     float tween_val = 0.0;
 
+    float scaled_width_scale = width_scale*length(camera_pos - from_vert);
+
     // type 0 is a line triangle
     // type 1 is a shaded sphere triangle
     // type 2 is a non-shaded triangle
     // type 3 is to point animated shaded sphere triangle
     // type 4 is global function animated sphere triangle
-    // type 5 is global function animated line triangle
+    // type 5-7 is static line triangle
+    // type 8-10 is global function animated line triangle
     switch(type){
         case 0u:
             direction = normalize(cross(camera_pos - from_vert, translate_from));
@@ -128,34 +141,66 @@ if (tween_val == 1.0) {
     before = after;
     after  = activation_function_0(after);
     tween_val = linearTweenValue(time, activation_change_start_stop_time_0.x, activation_change_start_stop_time_0.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_1*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_1.x, matrix_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_1;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_1.x, bias_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_2*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_2.x, matrix_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_2;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_2.x, bias_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_2.x, activation_change_start_stop_time_2.y);
 }
             tween_trans = linearTween(tween_val, before, after);
-            vert = from_vert*width_scale + tween_trans;
+            vert = from_vert*scaled_width_scale + tween_trans;
             color = in_color*map(dot(normalize(vert - tween_trans), light_direction), -1.0, 1.0, 0.0, 1.0);
             break;
         
         case 5u:
+            // Start
             tangent_v = tangent(before_vert, from_vert, after_vert, 0u);
             direction = normalize(cross(camera_pos - from_vert, tangent_v));
-            vert = from_vert + direction*width_scale;
+            vert = from_vert + direction*scaled_width_scale/2;
             color = in_color;
             break;
 
         case 6u:
+            // Middle
             tangent_v = tangent(before_vert, from_vert, after_vert, 1u);
             direction = normalize(cross(camera_pos - from_vert, tangent_v));
-            vert = from_vert + direction*width_scale;
+            vert = from_vert + direction*scaled_width_scale/2;
             color = in_color;
             break;
 
         case 7u:
+            // End
             tangent_v = tangent(before_vert, from_vert, after_vert, 2u);
             direction = normalize(cross(camera_pos - from_vert, tangent_v));
-            vert = from_vert + direction*width_scale;
+            vert = from_vert + direction*scaled_width_scale/2;
             color = in_color;
             break;
 
         case 8u:
+            // Start
             before = from_vert;
 after  = change_matrix_0*from_vert;
 tween_val = linearTweenValue(time, matrix_change_start_stop_time_0.x, matrix_change_start_stop_time_0.y);
@@ -169,6 +214,34 @@ if (tween_val == 1.0) {
     before = after;
     after  = activation_function_0(after);
     tween_val = linearTweenValue(time, activation_change_start_stop_time_0.x, activation_change_start_stop_time_0.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_1*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_1.x, matrix_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_1;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_1.x, bias_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_2*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_2.x, matrix_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_2;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_2.x, bias_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_2.x, activation_change_start_stop_time_2.y);
 }
             curr_vert = linearTween(tween_val, before, after);
 
@@ -185,16 +258,45 @@ if (tween_val == 1.0) {
     before = after;
     after  = activation_function_0(after);
     tween_val = linearTweenValue(time, activation_change_start_stop_time_0.x, activation_change_start_stop_time_0.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_1*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_1.x, matrix_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_1;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_1.x, bias_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_2*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_2.x, matrix_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_2;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_2.x, bias_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_2.x, activation_change_start_stop_time_2.y);
 }
             aft_vert = linearTween(tween_val, before, after);
 
             tangent_v = tangent(b4_vert, curr_vert, aft_vert, 0u);
             direction = normalize(cross(camera_pos - curr_vert, tangent_v));
-            vert = curr_vert + direction*width_scale;
+            vert = curr_vert + direction*scaled_width_scale/2;
             color = in_color;
             break;
 
         case 9u:
+            // Middle
             before = before_vert;
 after  = change_matrix_0*before_vert;
 tween_val = linearTweenValue(time, matrix_change_start_stop_time_0.x, matrix_change_start_stop_time_0.y);
@@ -208,6 +310,34 @@ if (tween_val == 1.0) {
     before = after;
     after  = activation_function_0(after);
     tween_val = linearTweenValue(time, activation_change_start_stop_time_0.x, activation_change_start_stop_time_0.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_1*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_1.x, matrix_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_1;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_1.x, bias_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_2*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_2.x, matrix_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_2;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_2.x, bias_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_2.x, activation_change_start_stop_time_2.y);
 }
             b4_vert = linearTween(tween_val, before, after);
 
@@ -224,6 +354,34 @@ if (tween_val == 1.0) {
     before = after;
     after  = activation_function_0(after);
     tween_val = linearTweenValue(time, activation_change_start_stop_time_0.x, activation_change_start_stop_time_0.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_1*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_1.x, matrix_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_1;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_1.x, bias_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_2*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_2.x, matrix_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_2;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_2.x, bias_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_2.x, activation_change_start_stop_time_2.y);
 }
             curr_vert = linearTween(tween_val, before, after);
 
@@ -240,17 +398,46 @@ if (tween_val == 1.0) {
     before = after;
     after  = activation_function_0(after);
     tween_val = linearTweenValue(time, activation_change_start_stop_time_0.x, activation_change_start_stop_time_0.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_1*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_1.x, matrix_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_1;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_1.x, bias_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_2*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_2.x, matrix_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_2;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_2.x, bias_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_2.x, activation_change_start_stop_time_2.y);
 }
             aft_vert = linearTween(tween_val, before, after);
 
             tangent_v = tangent(b4_vert, curr_vert, aft_vert, 1u);
 
             direction = normalize(cross(camera_pos - curr_vert, tangent_v));
-            vert = curr_vert + direction*width_scale;
+            vert = curr_vert + direction*scaled_width_scale/2;
             color = in_color;
             break;
 
         case 10u:
+            // End
             before = before_vert;
 after  = change_matrix_0*before_vert;
 tween_val = linearTweenValue(time, matrix_change_start_stop_time_0.x, matrix_change_start_stop_time_0.y);
@@ -264,6 +451,34 @@ if (tween_val == 1.0) {
     before = after;
     after  = activation_function_0(after);
     tween_val = linearTweenValue(time, activation_change_start_stop_time_0.x, activation_change_start_stop_time_0.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_1*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_1.x, matrix_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_1;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_1.x, bias_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_2*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_2.x, matrix_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_2;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_2.x, bias_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_2.x, activation_change_start_stop_time_2.y);
 }
             b4_vert = linearTween(tween_val, before, after);
 
@@ -280,12 +495,40 @@ if (tween_val == 1.0) {
     before = after;
     after  = activation_function_0(after);
     tween_val = linearTweenValue(time, activation_change_start_stop_time_0.x, activation_change_start_stop_time_0.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_1*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_1.x, matrix_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_1;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_1.x, bias_change_start_stop_time_1.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_1.x, activation_change_start_stop_time_1.y);
+}if (tween_val == 1.0) {
+    before = after;
+    after  = change_matrix_2*after;
+    tween_val = linearTweenValue(time, matrix_change_start_stop_time_2.x, matrix_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = after + change_bias_2;
+    tween_val = linearTweenValue(time, bias_change_start_stop_time_2.x, bias_change_start_stop_time_2.y);
+}
+if (tween_val == 1.0) {
+    before = after;
+    after  = activation_function_0(after);
+    tween_val = linearTweenValue(time, activation_change_start_stop_time_2.x, activation_change_start_stop_time_2.y);
 }
             curr_vert = linearTween(tween_val, before, after);
 
             tangent_v = tangent(b4_vert, curr_vert, aft_vert, 2u);
             direction = normalize(cross(camera_pos - curr_vert, tangent_v));
-            vert = curr_vert + direction*width_scale;
+            vert = curr_vert + direction*scaled_width_scale/2;
             color = in_color;
             break;
 

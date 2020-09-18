@@ -2,6 +2,7 @@ class Renderer:
     def __init__(self):
         self.before_render_funcs = []
         self.after_render_funcs = []
+        self.advance_time_func = None
 
     def set_program(self, program):
         self.program = program
@@ -11,6 +12,9 @@ class Renderer:
 
     def add_after_render_function(self, func):
         self.after_render_funcs.append(func)
+
+    def set_advance_time_function(self, func):
+        self.advance_time_func = func
 
     def update_vertex_buffer(self, buffer):
         self.vbo.write(buffer)

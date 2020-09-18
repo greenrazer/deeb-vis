@@ -22,8 +22,10 @@ class Scene:
         self.compiler = compiler
         self.renderer = renderer
         self.compiled = False
+        self.time_increment = 1
 
         self.renderer.add_before_render_function(self.check_camera_change)
+        # self.renderer.set_advance_time_function(self.advance_time)
 
         self.static_scene_objs = []
         self.transformable_scene_objs = []
@@ -35,6 +37,13 @@ class Scene:
         if self.camera.proj_stale:
             self.program['projection_matrix'].value = self.camera.projection.to_tuple()
             self.camera.proj_stale = False
+
+    def advance_time(self, renderer, time, frame_time):
+        if abs(frame_time) > 1500000:
+            return
+        import math
+        self.program['time'].value = 4*math.sin(0.7*time)
+        # self.program['time'].value += frame_time*self.time_increment
 
     def add_transformable_object(self, obj):
         self.compiled = False

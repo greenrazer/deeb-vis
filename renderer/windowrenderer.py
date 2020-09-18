@@ -59,7 +59,6 @@ class WindowRenderer(Renderer):
         self.clear_color = color
 
     def render(self, time, frame_time):
-        self.program['time'].value = time
         self.context.clear(*self.clear_color)
         self.vao.render(moderngl.TRIANGLES)
 
@@ -74,6 +73,11 @@ class WindowRenderer(Renderer):
             if self.before_render_funcs:
                 for func in self.before_render_funcs:
                     func(self, time, frame_time)
+
+            if self.advance_time_func:
+                self.advance_time_func(self, time, frame_time)
+            else:
+                self.program['time'].value = time
 
             self.render(time, frame_time)
 

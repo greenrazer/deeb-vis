@@ -1,7 +1,12 @@
 import math
+import random
 import numpy as np
 
 class Vector:
+    def __init__(self, *args):
+        self._vals = np.array(args)
+        self._cls = Vector
+
     def __getitem__(self, ind):
         return self._vals[ind]
 
@@ -40,13 +45,13 @@ class Vector:
     
     def __ne__(self, other):
         self._assert_check_vals_size(other)
-        return not(self._vals != other._vals).all
+        return not(self._vals != other._vals).all()
 
     def __add__(self, other):
         if isinstance(other, Vector):
-            return self.from_array(self._vals + other._vals)
+            return self.from_vec(self._vals + other._vals)
         else:
-            return self.from_array(self._vals + other)
+            return self.from_vec(self._vals + other)
 
     def __iadd__(self, other):
         if isinstance(other, Vector):
@@ -57,9 +62,9 @@ class Vector:
 
     def __sub__(self, other):
         if isinstance(other, Vector):
-            return self.from_array(self._vals - other._vals)
+            return self.from_vec(self._vals - other._vals)
         else:
-            return self.from_array(self._vals - other)
+            return self.from_vec(self._vals - other)
 
     def __isub__(self, other):
         if isinstance(other, Vector):
@@ -70,9 +75,9 @@ class Vector:
 
     def __mul__(self, other):
         if isinstance(other, Vector):
-            return self.from_array(self._vals * other._vals)
+            return self.from_vec(self._vals * other._vals)
         else:
-            return self.from_array(self._vals * other)
+            return self.from_vec(self._vals * other)
 
     def __imul__(self, other):
         if isinstance(other, Vector):
@@ -86,9 +91,9 @@ class Vector:
 
     def __truediv__(self, other):
         if isinstance(other, Vector):
-            return self.from_array(self._vals / other._vals)
+            return self.from_vec(self._vals / other._vals)
         else:
-            return self.from_array(self._vals / other)
+            return self.from_vec(self._vals / other)
 
     def __idiv__(self, other):
         if isinstance(other, Vector):
@@ -98,7 +103,7 @@ class Vector:
         return self
 
     def __neg__(self):
-        return self.from_array(-self._vals)
+        return self.from_vec(-self._vals)
     
     def __str__(self):
         return str(self._vals)
@@ -116,14 +121,35 @@ class Vector:
     def copy(self):
         return self._cls(*self._vals)
     
-    def from_array(self, arr):
+    def from_vec(self, arr):
         return self._cls(*list(arr))
 
     def to_tuple(self):
         return tuple(self)
-    
+
+    def pad_to(self, size):
+        v = self._vals
+        if(len(self.shape) > 1):
+            v = self._vals.flatten()
+        vec = np.pad(v, (0, size - v.shape[0]))
+        return self.from_vec(vec)
+
     @property
     def shape(self):
         return self._vals.shape
 
+    @property
+    def size(self):
+        return self._vals.shape[0]
 
+
+    @staticmethod
+    def from_array(arr):
+        return Vector(*list(arr))
+
+    @staticmethod
+    def random(from_n, to_n, size):
+        vec = []
+        for i in range(size):
+            vec.append(random.uniform(from_n,to_n))
+        return Vector(*vec)
