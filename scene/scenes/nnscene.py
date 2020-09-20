@@ -1,20 +1,13 @@
 from scene.scenes.scene import Scene
 
-from scene.objects.sceneobject import SceneObject
-from scene.objects.transformablesceneobject import TransformableSceneObject
-
-from scene.cameras.camera import Camera
-
-from renderer.renderer import Renderer
-
-from shaders.nncompiler import NNCompiler
+from shaders.bufferbuilders.globalmtfbufferbuilder import GlobalMTFBufferBuilder
 
 class NNScene(Scene):
     def __init__(self, camera, renderer): 
         self.curr_timing = 0
         self.steps = []
-        Scene.__init__(self, 
-            compiler = NNCompiler(self.steps), 
+        self.activations = []
+        Scene.__init__(self,
             camera = camera, 
             renderer = renderer)
 
@@ -24,6 +17,7 @@ class NNScene(Scene):
         a_time = (b_time[1] + a_timing[0], b_time[1] + a_timing[1])
         self.curr_timing = a_time[1]
 
+        self.activations.append(activation)
         self.steps.append({
             'matrix': matrix, 
             'bias': bias, 
@@ -36,13 +30,25 @@ class NNScene(Scene):
     def add_transformations_to_uniforms(self):
         if not self.compiled:
             raise RuntimeError("Must compile shaders before attaching transformations to uniforms")
-        for i in range(len(self.steps)):
-            self.program[self.compiler.uniforms[i][0]].value = self.steps[i]['matrix'].to_tuple()
-            self.program[self.compiler.uniforms[i][1]].value = self.steps[i]['bias'].to_tuple()
-            self.program[self.compiler.uniforms[i][2]].value = self.steps[i]['m_time']
-            self.program[self.compiler.uniforms[i][3]].value = self.steps[i]['b_time']
-            self.program[self.compiler.uniforms[i][4]].value = self.steps[i]['a_time']
+        for c in self.buffer_builders:
+            if isinstance(c, GlobalMTFBufferBuilder):
+                for i in range(len(self.steps)):
+                    c.set_step_uniform(i, 
+                        self.steps[i]['matrix'].to_tuple(), 
+                        self.steps[i]['bias'].to_tuple(),
+                        self.steps[i]['m_time'],
+                        self.steps[i]['b_time'],
+                        self.steps[i]['a_time']
+                    )
 
     def compile(self):
         Scene.compile(self)
         self.add_transformations_to_uniforms()
+
+    def generate_buffer_builders(self):
+        buffer_builders = []
+        for clas in self.buffer_builder_classes:
+            buf_cls = clas(self.scene_objs, self.activations)
+            if buf_cls.populated:
+                buffer_builders.append(buf_cls)
+        return buffer_builders

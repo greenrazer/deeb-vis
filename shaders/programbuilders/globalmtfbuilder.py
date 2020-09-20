@@ -1,11 +1,21 @@
-import ast
-from shaders.shadercompiler import ShaderCompiler
+from shaders.programbuilders.programbuilder import ProgramBuilder
+from shaders.programbuilders.functionbuilder import create_glsl_function
 
-class NNCompiler(ShaderCompiler):
-    def __init__(self, steps):
-        ShaderCompiler.__init__(self)
+from utils.util import replace_with_all
 
-        self.steps = steps
+
+
+class GlobalMTFBuilder(ProgramBuilder):
+    def __init__(self, activation_list):
+        ProgramBuilder.__init__(self)
+
+        with open("shaders/scripts/vert_successive_tween_begin.frag.glsl") as f:
+            self.begin_tween_step_template = f.read()
+
+        with open("shaders/scripts/vert_successive_tween_step.frag.glsl") as f:
+            self.middle_tween_step_template = f.read()
+
+        self.activation_list = activation_list
         self.activation_function_name_stub = lambda x : f'activation_function_{x}'
 
         self.uniforms_token = '<uniforms>'
@@ -23,7 +33,6 @@ class NNCompiler(ShaderCompiler):
         self.activation_time_end_token = '<activation_time_end>'
 
         self.main_step_sphere_replace_token = '<matrix_step_sphere_transform>'
-        self.main_step_list_replace_token = '<matrix_step_list_transform>'
         self.main_step_line_before_vertex_replace_token = '<b4_vert_matrix_transform>'
         self.main_step_line_curr_vertex_replace_token = '<curr_vert_matrix_transform>'
         self.main_step_line_after_vertex_replace_token = '<after_vert_matrix_transform>'
@@ -34,42 +43,36 @@ class NNCompiler(ShaderCompiler):
         self.bias_time_prefix = 'bias_change_start_stop_time_'
         self.activation_time_prefix = 'activation_change_start_stop_time_'
 
-        with open("shaders/fragments/nn_graph_vert_shader.frag.glsl") as f:
-            self.vertex_shader_template = f.read()        
-
-        with open("shaders/fragments/vert_successive_tween_begin.frag.glsl") as f:
-            self.begin_tween_step_template = f.read()
-
-        with open("shaders/fragments/vert_successive_tween_step.frag.glsl") as f:
-            self.middle_tween_step_template = f.read()
-
-
-        with open("shaders/fragments/nn_graph_frag_shader.frag.glsl") as f:
-            self.fragment_shader_template = f.read()
+        self.uniforms = [
+            "projection_matrix", 
+            "camera_pos",
+            "time",
+        ]
+        self.step_uniforms = []
 
     def generate_activations(self):
         self.step_to_function_name = []
 
         expressions = []
-        for s in self.steps:
-            if s['activation'] not in expressions:
-                expressions.append(s['activation'])
+        for s in self.activation_list:
+            if s not in expressions:
+                expressions.append(s)
                 ind = len(expressions)-1
             else:
-                ind = expressions.index(s['activation'])
+                ind = expressions.index(s)
             self.step_to_function_name.append(self.activation_function_name_stub(ind))
 
         activations_functions = []
         for ind, func in enumerate(expressions):
-            glsl_function = self.create_glsl_function(self.activation_function_name_stub(ind), 'vec3', func)
+            glsl_function = create_glsl_function(self.activation_function_name_stub(ind), 'vec3', func)
             activations_functions.append(glsl_function)
         
         return "\n".join(activations_functions)
 
     def generate_uniforms(self):
-        self.uniforms = []
+        self.step_uniforms = []
         uniforms_arr = []
-        for i in range(len(self.steps)):
+        for i in range(len(self.activation_list)):
             uniforms = (
                 f'{self.matrix_prefix}{i}',
                 f'{self.bias_prefix}{i}',
@@ -86,13 +89,14 @@ class NNCompiler(ShaderCompiler):
                 f'uniform vec2 {uniforms[4]};\n'
             ]
 
-            self.uniforms.append(uniforms)
+            self.uniforms.extend(uniforms)
+            self.step_uniforms.append(uniforms)
             uniforms_arr.append("".join(uniforms_arr_str))
         return "".join(uniforms_arr)
 
     def generate_step_transformation_fragments(self, init_vec):
         function_template_list = []
-        for i, step in enumerate(self.steps):
+        for i, step in enumerate(self.activation_list):
             if(i == 0):
                 temp = self.begin_tween_step_template.replace(self.matrix_token, f'{self.matrix_prefix}{i}')
                 temp = temp.replace(self.start_token, init_vec)
@@ -111,16 +115,10 @@ class NNCompiler(ShaderCompiler):
             
             function_template_list.append(temp)
         
-        if(len(self.steps) == 0):
+        if(len(self.activation_list) == 0):
             function_template_list.append(f"tween_val = 0.0; before = {init_vec};after = vec3(0.0,0.0,0.0);\n")
 
         return "".join(function_template_list)
-
-    def replace_with_all(self, string, in_out_tuples):
-        temp = string
-        for in_s, out_s in in_out_tuples:
-            temp = temp.replace(in_s, out_s)
-        return temp
 
     def build_vertex_shader(self):
         activation_functions_string = self.generate_activations()
@@ -134,7 +132,7 @@ class NNCompiler(ShaderCompiler):
         step_line_curr_fragments_string = step_fragments_string.replace('<start_pt>', 'from_vert')
         step_line_after_fragments_string = step_fragments_string.replace('<start_pt>', 'after_vert')
 
-        final_shader = self.replace_with_all(self.vertex_shader_template, [
+        final_shader = replace_with_all(self.vertex_shader_template, [
             (self.main_step_sphere_replace_token, step_sphere_fragments_string),
             (self.uniforms_token, steps_uniform_string),
             (self.main_step_list_replace_token, step_list_fragments_string),
@@ -148,6 +146,3 @@ class NNCompiler(ShaderCompiler):
             f.write(final_shader)
 
         return final_shader
-
-    def build_fragment_shader(self):
-        return self.fragment_shader_template

@@ -63,11 +63,14 @@ class WindowRenderer(Renderer):
     def render(self):
         self.wnd.clear(*self.clear_color)
         self.context.clear(*self.clear_color)
-        self.vao.render(moderngl.TRIANGLES)
+        for vao in self.vertex_array_objects:
+            vao.render(moderngl.TRIANGLES)
         self.wnd.swap_buffers()
 
     def advance_time(self, renderer, time, frame_time):
-        self.program['time'].value = time
+        for vao in self.vertex_array_objects:
+            if 'time' in vao.program:
+                vao.program['time'].value = time
 
     @property
     def stopping_condition(self):

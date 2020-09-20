@@ -40,11 +40,11 @@ class NNSceneManager:
         self.camera_orthographic = OrthographicCamera(Vector3(0.0, 0.0, 100.0), self.z, self.z, -self.z, -self.z, 0.1, 1000)
         self.camera_orthographic.look_at(Vector3(0.0,0.0,0.0), Vector3(1.0,0.0,0.0))
 
-        self.scene = NNScene(self.camera_perspective, self.renderer)
-        self.scene.renderer.add_before_render_function(self.rotate)
+        # self.scene = NNScene(self.camera_perspective, self.renderer)
+        # self.scene.renderer.add_before_render_function(self.rotate)
 
-        # self.scene = NNScene(self.camera_orthographic, self.renderer)
-        # self.scene.renderer.add_before_render_function(self.zoom)
+        self.scene = NNScene(self.camera_orthographic, self.renderer)
+        self.scene.renderer.add_before_render_function(self.zoom)
 
         self.neural_network = NNTrainer(data, layers, labels)
         self.neural_network.n_training_epochs(10000)
@@ -57,6 +57,8 @@ class NNSceneManager:
         self.grid = Grid(-20, 20, grid_width=0.0008)
         self.vector = VectorR.straight_vector(Vector3(0,0,0.01), Vector3(4,4,0.01), 0.5, 0.026)
 
+        self.spherer = Sphere(0.01, Vector3(0,0,0))
+
         self.datas = SphereCollection(0.003)
         for d in range(len(data)):
             self.datas.add(
@@ -64,11 +66,12 @@ class NNSceneManager:
                 Vector(*labels[d]).pad_to(3),
             )
 
-        self.scene.add_static_object(self.grid)
-        self.scene.add_transformable_object(self.vector)
-        self.scene.add_transformable_object(self.spheres)
-        self.scene.add_transformable_object(self.lines)
-        # self.scene.add_transformable_object(self.datas)
+        self.scene.add_scene_object(self.grid)
+        # self.scene.add_scene_object(self.vector)
+        # self.scene.add_scene_object(self.spheres)
+        self.scene.add_scene_object(self.lines)
+        self.scene.add_scene_object(self.datas)
+        # self.scene.add_scene_object(self.spherer)
 
         for l in self.neural_network.layers_history[-1]:
             mat = Matrix.from_array(l['weights']).pad_to(3)
@@ -88,7 +91,7 @@ class NNSceneManager:
         if abs(frametime) > 1500000:
             return
         self.camera_perspective.position = Vector3(10*math.cos(self.ang), 10*math.sin(self.ang), 5)
-        self.ang += frametime*0.02
+        self.ang += frametime*0.2
 
     def play(self):
         self.scene.compile()

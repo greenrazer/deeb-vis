@@ -1,5 +1,7 @@
 import ast
 
+from utils.util import replace_with_all
+
 def name_to_operation(name):
     if name == "Add":
         op = "+"
@@ -43,32 +45,20 @@ def ast_to_glsl(node):
     else:
         raise SyntaxError(f"Cannot parse {node.__class__.__name__}.")
 
+def to_glsl(expr):
+    ast_parse = ast.parse(expr, '<string>', 'eval')
+    return ast_to_glsl(ast_parse)
 
-class ShaderCompiler:
-    def __init__(self):
-        with open("shaders/fragments/function_template.frag,glsl") as f:
-            self.function_template = f.read()
+type_token = '<type>'
+expr_token = '<expr>'
+name_token = '<name>'
 
-        self.type_token = '<type>'
-        self.expr_token = '<expr>'
-        self.name_token = '<name>'
+with open("shaders/scripts/function_template.frag.glsl") as f:
+    function_template = f.read()
 
-        self.glsl_version = '#version 330'
-
-    def create_glsl_function(self, name, vtype, expr):
-        temp = self.function_template.replace(self.type_token, vtype)
-        temp = temp.replace(self.name_token, name)
-        temp = temp.replace(self.expr_token, self.to_glsl(expr))
-        return temp
-
-    def to_glsl(self, expr):
-        ast_parse = ast.parse(expr, '<string>', 'eval')
-        return ast_to_glsl(ast_parse)
-
-    def compile(self, context):
-        vertex_shader = self.build_vertex_shader()
-        fragment_shader = self.build_fragment_shader()
-        return context.program(
-            vertex_shader=vertex_shader,
-            fragment_shader=fragment_shader,
-        )
+def create_glsl_function(name, vtype, expr):
+    return replace_with_all(function_template, [
+        (type_token, vtype),
+        (name_token, name),
+        (expr_token, to_glsl(expr))
+    ])

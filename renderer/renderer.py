@@ -5,9 +5,7 @@ class Renderer:
         self.before_render_funcs = []
         self.after_render_funcs = []
         self.advance_time_func = None
-
-    def set_program(self, program):
-        self.program = program
+        self.vertex_array_objects = []
 
     def add_before_render_function(self, func):
         self.before_render_funcs.append(func)
@@ -17,9 +15,6 @@ class Renderer:
 
     def set_advance_time_function(self, func):
         self.advance_time_func = func
-
-    def update_vertex_buffer(self, buffer):
-        self.vbo.write(buffer)
 
     @property
     def stopping_condition(self):
@@ -57,22 +52,5 @@ class Renderer:
         self.on_destroy(current_time, total_time, frames)
 
     
-    def set_vertex_buffer(self, byte_array):
-        self.shader_args = ("3f4 3f4 3f4 3f4 3f4 3f4 2f4 3f4 3f4 1f4 3f4 u1 /v", 
-            "from_vert", 
-            "to_vert",
-            "before_vert",
-            "after_vert",
-            "translate_from", 
-            "translate_to", 
-            "point_transform_start_stop_time", 
-            "normal", 
-            "light_direction", 
-            "width_scale", 
-            "in_color", 
-            "type")
-
-        self.vbo = self.context.buffer(byte_array)
-        self.vao = self.context.vertex_array(self.program, [
-            (self.vbo, *self.shader_args),
-        ])
+    def add_vertex_array_object(self, vao):
+        self.vertex_array_objects.append(vao)

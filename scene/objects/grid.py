@@ -5,6 +5,9 @@ from utils.util import frange
 
 
 class Grid(SceneObject):
+    floats_per_vertex = Line.floats_per_vertex
+    chars_per_vertex = Line.chars_per_vertex
+    bytes_per_vertex = Line.bytes_per_vertex
     def __init__(self, grid_from, grid_to, grid_width=0.01, grid_increment=1, sections=1):
         SceneObject.__init__(self)
         self.grid = self.create_grid(grid_from, grid_to, grid_width, grid_increment, sections)

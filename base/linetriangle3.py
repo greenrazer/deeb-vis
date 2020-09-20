@@ -37,8 +37,8 @@ class LineTriangle3:
             width_arr = [self.widths[curr[1][0]], self.widths[curr[1][1]], self.widths[curr[1][2]]]
 
         return [
-                self.verts[curr[0][0]],  self.verts[curr[0][1]],  self.verts[curr[0][2]],
                 self.verts[curr[0][0]-1],  self.verts[curr[0][1]-1],  self.verts[curr[0][2]-1],
+                self.verts[curr[0][0]],  self.verts[curr[0][1]],  self.verts[curr[0][2]],
                 self.verts[curr[0][0]+1],  self.verts[curr[0][1]+1],  self.verts[curr[0][2]+1],
                 *width_arr,
                 self.types[curr[0][0]].value,  self.types[curr[0][1]].value,  self.types[curr[0][2]].value,

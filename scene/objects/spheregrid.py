@@ -38,6 +38,9 @@ def color_wheel(radius, theta):
 
 
 class SphereGrid(TransformableSceneObject):
+    floats_per_vertex = Sphere.floats_per_vertex
+    chars_per_vertex = Sphere.chars_per_vertex
+    bytes_per_vertex = Sphere.bytes_per_vertex
     def __init__(self, grid_from, grid_to, grid_increment=1, radius = 0.1):
         TransformableSceneObject.__init__(self)
         self.spheres = []

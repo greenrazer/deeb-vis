@@ -2,6 +2,9 @@ from scene.objects.transformablesceneobject import TransformableSceneObject
 from scene.objects.sphere import Sphere
 
 class SphereCollection(TransformableSceneObject):
+    floats_per_vertex = Sphere.floats_per_vertex
+    chars_per_vertex = Sphere.chars_per_vertex
+    bytes_per_vertex = Sphere.bytes_per_vertex
     def __init__(self, radius = 0.1):
         TransformableSceneObject.__init__(self)
         self.spheres = []
