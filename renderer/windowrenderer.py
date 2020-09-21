@@ -16,7 +16,8 @@ DEFAULT_WINDOW_SETTINGS = {
     'class': 'moderngl_window.context.pyglet.Window',
     'size': (720, 720),
     'aspect_ratio': 1,
-    "gl_version": (4, 3)
+    'gl_version': (4, 3),
+    'title': 'Window Renderer'
 }
 
 DEFAULT_CONTEXT_ENABLES = moderngl.DEPTH_TEST
@@ -60,11 +61,15 @@ class WindowRenderer(Renderer):
     def set_clear_color(self, color):
         self.clear_color = color
 
-    def render(self):
+    def immediate_before_render(self):
         self.wnd.clear(*self.clear_color)
         self.context.clear(*self.clear_color)
-        for vao in self.vertex_array_objects:
-            vao.render(moderngl.TRIANGLES)
+
+    def render_vao(self, vao, render_mode = moderngl.TRIANGLES):
+        self.wnd.ctx.screen.use()
+        vao.render(render_mode)
+
+    def immediate_after_render(self):
         self.wnd.swap_buffers()
 
     def advance_time(self, renderer, time, frame_time):

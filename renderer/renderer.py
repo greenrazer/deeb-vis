@@ -1,3 +1,5 @@
+import moderngl
+
 from utils.timer import Timer
 
 class Renderer:
@@ -23,8 +25,21 @@ class Renderer:
     def on_destroy(self, current_time, total_time, frames):
         raise NotImplementedError("No destory method on Renderer: maybe you need to instansiate a subclass.")
 
+    def immediate_before_render(self):
+        raise NotImplementedError()
+
+    def render_vao(self, vao, render_mode = moderngl.TRIANGLES):
+        raise NotImplementedError()
+
+    def immediate_after_render(self):
+        raise NotImplementedError()
+
     def render(self):
-        raise NotImplementedError("No render method on Renderer: maybe you need to instansiate a subclass.")
+        self.immediate_before_render()
+        for vao in self.vertex_array_objects:
+            self.render_vao(vao)
+        self.immediate_after_render()
+
 
     def run(self):
         timer = Timer()
