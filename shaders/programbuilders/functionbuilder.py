@@ -28,6 +28,8 @@ def ast_to_glsl(node):
             ast_to_glsl(node.left), 
             ast_to_glsl(node.right)
         ) + ")"
+    if isinstance(node, ast.Eq):
+        return "=="
     if isinstance(node, ast.Name):
         return "val" #str(node.id)
     if isinstance(node, ast.Call):
@@ -42,6 +44,14 @@ def ast_to_glsl(node):
     if isinstance(node, ast.UnaryOp):
         op_c = node.op.__class__.__name__
         return name_to_operation(op_c)(ast_to_glsl(node.operand))
+    if isinstance(node, ast.IfExp):
+        return f"{ast_to_glsl(node.test)} ? {ast_to_glsl(node.body)} : {ast_to_glsl(node.orelse)}"
+    if isinstance(node, ast.Compare):
+        op_c = []
+        left = ast_to_glsl(node.left)
+        for i in range(len(node.comparators)):
+            op_c.append(f"{left} {ast_to_glsl(node.ops[i])} {ast_to_glsl(node.comparators[i])}")
+        return ' && '.join(op_c)
     else:
         raise SyntaxError(f"Cannot parse {node.__class__.__name__}.")
 

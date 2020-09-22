@@ -82,4 +82,46 @@ class NNTrainer:
         sig = NNTrainer.sigmoid(x)
         return sig*(1-sig)
 
+    @staticmethod
+    def relu(x, slope = 1):
+        y = x.copy()
+        y[x<0] = 0 
+        return y * slope
+
+    @staticmethod
+    def relu_prime(x, slope = 1):
+        y = x.copy()
+        y[x<0] = 0
+        y[x>=0] = slope
+        return y
+
+    @staticmethod
+    def leaky_relu(x, slope = 1, slope_leak = 0.1):
+        y = x.copy()
+        y[x<0] *= slope_leak
+        y[x>=0] *= slope
+        return y
+
+    @staticmethod
+    def leaky_relu_prime(x, slope = 1, slope_leak = 0.1):
+        y = x.copy()
+        y[x<0] = slope_leak
+        y[x>=0] = slope
+        return y
+
+    @staticmethod
+    def softmax(x):
+        exps = np.exp(x)
+        sums = np.sum(exps)
+        return exps/ sums
+
+    @staticmethod
+    def softmax_prime(x):
+        S = NNTrainer.softmax(x)
+        S_vector = S.reshape(S.shape[0],1)
+        S_matrix = np.tile(S_vector,S.shape[0])
+        return np.diag(S) - (S_matrix * np.transpose(S_matrix))
+
+        
+
     

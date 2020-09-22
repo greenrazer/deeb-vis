@@ -3,13 +3,15 @@ from scene.scenes.scene import Scene
 from shaders.bufferbuilders.globalmtfbufferbuilder import GlobalMTFBufferBuilder
 
 class NNScene(Scene):
-    def __init__(self, camera, renderer): 
+    def __init__(self, camera, renderer, size = None, subscene = False): 
         self.curr_timing = 0
         self.steps = []
         self.activations = []
         Scene.__init__(self,
             camera = camera, 
-            renderer = renderer)
+            renderer = renderer,
+            size = size,
+            subscene = subscene)
 
     def add_mba_step_transformation(self, matrix, bias, activation, m_timing, b_timing, a_timing):
         m_time = (self.curr_timing + m_timing[0], self.curr_timing + m_timing[1])

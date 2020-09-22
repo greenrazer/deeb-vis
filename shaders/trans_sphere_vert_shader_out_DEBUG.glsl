@@ -54,7 +54,7 @@ vec3 linearTween(float value, vec3 a, vec3 b){
 }
 
 vec3 activation_function_0(vec3 val) {
-    return (1.0 / (1.0 + exp(- val)));
+    return vec3(val.x == 0.0 ? 0.0 : (1.0 / (1.0 + exp(- val.x))), val.y == 0.0 ? 0.0 : (1.0 / (1.0 + exp(- val.y))), val.z == 0.0 ? 0.0 : (1.0 / (1.0 + exp(- val.z))));
 }
 
 void main() { 

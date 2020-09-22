@@ -7,7 +7,7 @@ class Renderer:
         self.before_render_funcs = []
         self.after_render_funcs = []
         self.advance_time_func = None
-        self.vertex_array_objects = []
+        self.render_trees = []
 
     def add_before_render_function(self, func):
         self.before_render_funcs.append(func)
@@ -28,18 +28,14 @@ class Renderer:
     def immediate_before_render(self):
         raise NotImplementedError()
 
-    def render_vao(self, vao, render_mode = moderngl.TRIANGLES):
-        raise NotImplementedError()
-
     def immediate_after_render(self):
         raise NotImplementedError()
 
     def render(self):
         self.immediate_before_render()
-        for vao in self.vertex_array_objects:
-            self.render_vao(vao)
+        for tree in self.render_trees:
+            tree.render()
         self.immediate_after_render()
-
 
     def run(self):
         timer = Timer()
@@ -67,5 +63,5 @@ class Renderer:
         self.on_destroy(current_time, total_time, frames)
 
     
-    def add_vertex_array_object(self, vao):
-        self.vertex_array_objects.append(vao)
+    def add_render_tree_obj(self, tree):
+        self.render_trees.append(tree)

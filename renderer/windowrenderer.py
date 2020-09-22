@@ -15,7 +15,7 @@ from renderer.renderer import Renderer
 DEFAULT_WINDOW_SETTINGS = {
     'class': 'moderngl_window.context.pyglet.Window',
     'size': (720, 720),
-    'aspect_ratio': 1,
+    'aspect_ratio': 720/720,
     'gl_version': (4, 3),
     'title': 'Window Renderer'
 }
@@ -27,22 +27,26 @@ DEFAULT_RENDERER_SETTINGS = {
 }
 
 class WindowRenderer(Renderer):
-    def __init__(self, 
-                context = None,
-                window_settings = DEFAULT_WINDOW_SETTINGS, 
-                context_enables = DEFAULT_CONTEXT_ENABLES,
-                renderer_settings = DEFAULT_RENDERER_SETTINGS):
-
+    def __init__(self,
+                window_settings = {}, 
+                renderer_settings = {},
+                context_enables = DEFAULT_CONTEXT_ENABLES):
         Renderer.__init__(self)
+
+        window_settings = {**DEFAULT_WINDOW_SETTINGS, **window_settings}
+        renderer_settings = {**DEFAULT_RENDERER_SETTINGS, **renderer_settings}
+
+        self.size = window_settings['size']
 
         for key, value in renderer_settings.items():
             setattr(self, key, value)
 
-        self.context = context if context else moderngl.create_standalone_context(require=430)
+        self.context = moderngl.create_standalone_context(require=430)
         window_cls = import_string(window_settings["class"])
         self.wnd = window_cls(**window_settings)
         self.context.enable(context_enables)
         moderngl_window.activate_context(self.wnd, self.context)
+        self.context = self.wnd.ctx
 
         # register event methods
         self.wnd.resize_func = self.resize
@@ -64,18 +68,23 @@ class WindowRenderer(Renderer):
     def immediate_before_render(self):
         self.wnd.clear(*self.clear_color)
         self.context.clear(*self.clear_color)
-
-    def render_vao(self, vao, render_mode = moderngl.TRIANGLES):
         self.wnd.ctx.screen.use()
-        vao.render(render_mode)
 
     def immediate_after_render(self):
         self.wnd.swap_buffers()
 
     def advance_time(self, renderer, time, frame_time):
-        for vao in self.vertex_array_objects:
-            if 'time' in vao.program:
-                vao.program['time'].value = time
+        def advance_timee(renderer):
+            if hasattr(renderer, 'vaos'):
+                for vao in renderer.vaos:
+                    if 'time' in vao.program:
+                        vao.program['time'].value = time
+            
+        for t in self.render_trees:
+            t.visit(advance_timee)
+
+            
+            
 
     @property
     def stopping_condition(self):

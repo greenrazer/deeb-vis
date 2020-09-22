@@ -4,24 +4,35 @@ from scene.cameras.camera import Camera
 
 from renderer.renderer import Renderer
 
+from renderer.screenrenderunit import ScreenRenderUnit
+from renderer.texturerenderunit import TextureRenderUnit
+
 from shaders.bufferbuilders.spherebufferbuilder import SphereBufferBuilder
 from shaders.bufferbuilders.staticlinebufferbuilder import StaticLineBufferBuilder
 from shaders.bufferbuilders.translinebufferbuilder import TransLineBufferBuilder
+from shaders.bufferbuilders.screenbufferbuilder import ScreenBufferBuilder
 
 class Scene:
     buffer_builder_classes = (
         SphereBufferBuilder,
         StaticLineBufferBuilder,
-        TransLineBufferBuilder
+        TransLineBufferBuilder,
+        ScreenBufferBuilder
     )
 
-    def __init__(self, camera, renderer):
+    def __init__(self, camera, renderer, size = None, subscene = False):
 
         if not isinstance(renderer, Renderer):
             raise TypeError(f"{renderer.__class__.__name__} is not a Renderer.")
 
         if not isinstance(camera, Camera):
             raise TypeError(f"{camera.__class__.__name__} is not a Camera.")
+        
+        self.subscene = subscene
+        self.subscenes = []
+        self.size = size if size else renderer.size
+
+        self.tree = None
 
         self.camera = camera
         self.renderer = renderer
@@ -34,12 +45,13 @@ class Scene:
         self.scene_objs = []
 
     def check_camera_change(self, renderer, time, frame_time):
-            if self.camera.pos_stale:
-                self.set_uniform_for_all('camera_pos', self.camera.position.to_tuple())
-                self.camera.pos_stale = False
-            if self.camera.proj_stale:
-                self.set_uniform_for_all('projection_matrix', self.camera.projection.to_tuple())
-                self.camera.proj_stale = False
+            if self.compiled:
+                if self.camera.pos_stale:
+                    self.set_uniform_for_all('camera_pos', self.camera.position.to_tuple())
+                    self.camera.pos_stale = False
+                if self.camera.proj_stale:
+                    self.set_uniform_for_all('projection_matrix', self.camera.projection.to_tuple())
+                    self.camera.proj_stale = False
 
     def advance_time(self, renderer, time, frame_time):
         if abs(frame_time) > 1500000:
@@ -69,17 +81,31 @@ class Scene:
 
     def compile(self):
         self.compiled = True
-
+        
         self.buffer_builders = self.generate_buffer_builders()
-
+        
+        vaos = []
         for b in self.buffer_builders:
             vao = b.build(self.renderer.context)
-            self.renderer.add_vertex_array_object(vao)
+            vaos.append(vao)
 
-        self.attach_uniforms()
+        if self.subscene:
+            self.tree = TextureRenderUnit(self.renderer.context, vaos, self.size)
+        else:
+            self.tree = ScreenRenderUnit(self.renderer.context, vaos)
 
+        self.attach_uniforms() 
+
+        for sub in self.subscenes:
+            sub.compile()
+            self.tree.add_child(sub.tree)
+
+    def attach_sub_scene(self, subscene):
+        subscene.subscene = True
+        self.subscenes.append(subscene)
 
     def run(self):
         if not self.compiled:
             raise RuntimeError("Must compile shaders before running program.")
+        self.renderer.add_render_tree_obj(self.tree)
         self.renderer.run()

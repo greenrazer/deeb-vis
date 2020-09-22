@@ -1,23 +1,19 @@
 from shaders.programbuilders.programbuilder import ProgramBuilder
 
-class StaticLineBuilder(ProgramBuilder):
+class ScreenBuilder(ProgramBuilder):
     def __init__(self):
         ProgramBuilder.__init__(self)
 
-        with open("shaders/scripts/static_line_vert_shader.frag.glsl") as f:
+        with open("shaders/scripts/screen_vert_shader.frag.glsl") as f:
             self.vertex_shader_template = f.read()
 
-        with open("shaders/scripts/color_fragment_shader.frag.glsl") as f:
+        with open("shaders/scripts/screen_fragment_shader.frag.glsl") as f:
             self.fragment_shader_template = f.read()
 
         self.input_tuple_per_vertex = self.generate_input_tuple(
             [
-                ('3f4', 'before_vert'),
-                ('3f4', 'curr_vert'),
-                ('3f4', 'after_vert'),
-                ('1f4', 'width'),
-                ('3f4', 'in_color'),
-                ('1u1', 'type'),
+                ('3f4', 'vert'),
+                ('2f4', 'texture_coord')
             ],
             self.PER_VERTEX
         )
@@ -33,8 +29,7 @@ class StaticLineBuilder(ProgramBuilder):
         )
 
         self.uniforms = [
-            "projection_matrix", 
-            "camera_pos"
+            "projection_matrix"
         ]
 
     def build_vertex_shader(self):
